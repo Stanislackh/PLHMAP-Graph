@@ -2,5 +2,5 @@
 
 Projet d'affichage des réseaux et de traitement des formules.
 
-Donc utilisateur sur ce lien : 
+Doc utilisateur sur ce lien : 
 -----------------------------
