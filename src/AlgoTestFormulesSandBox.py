@@ -51,3 +51,18 @@ dico = {
     17: "Hestia"
 }
 
+# résultat pour F1
+"""Si split aux / Je garde que les noms"""
+# res = f1.split("/")
+# print(res)
+
+"""Si split a l'espace je garde tout """
+res2 = f1.split(" ")
+print(res2)
+
+"""Affichage de res après boucle"""
+res = f1.split(" ")
+for i in res:
+    print(i)
+
+
