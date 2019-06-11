@@ -51,7 +51,7 @@ noms = {
     2: "Hêlios",
     3: "Megas",
     4: "Sarapis",
-    5: "Appolôn",
+    5: "Apollôn",
     6: "Puthios",
     7: "Kedrieus",
     8: "Kurios",
@@ -96,66 +96,6 @@ signes = {
     9: " "
 }
 
-""" Foctionne avec variable"""
-
-
-def coocurenceArc(formule):  # Permet de calculer la Coocurence des formules
-    """
-    :param formule
-    :return Le nombre de fois qu'un nom appraît dans la formule et les liens avec les autres noms
-
-    """
-    noeud = {}  # Permet de stocker la taille des noeuds
-    cle = 0  # Clé pour le dictionnaire à incrémenter
-    noeud2 = {}  # Dictionnaire avec les nombre de noms mentionnés dans les formules
-
-    res = formule.split(" ")  # Permet de découper la formule en supprimant les espaces
-    for i in res:
-        for j in signes.values():  # Regarde dans le dictionnaire des signes si il apparait
-            if i == j:
-                res.remove(j)  # Supprime les signes spéciaux des formules
-
-    temp = []  # Liste temporaire
-
-    for i in res:  # Permet de parcourir les élément de la liste res
-        temp.append(" ")  # Ajoute chaque element à la liste coupé a l'espace
-        for j in i:
-            if j not in signes.values():  # Ajoute les caractères non spéciaux
-                temp.append(j)
-
-    del temp[0]  # Supprime l'espace ajouté au début de la liste
-
-    """Calcule la taille des noeuds"""
-    chaine = ""  # Création de la chaine vide qui sera split par l'espace
-
-    for i in temp:  # Parcours la liste temp pour la traduire en chaine de caractère
-        chaine += i
-    final = chaine.split(" ")  # Coupe la chaine de caractère à l'espace pour en refaire uen liste
-    compte = {}.fromkeys(set(final), 0)  # Définit le compteur pour chaque mot présent
-
-    for valeur in final:  # Compte le nombre d'occurence de mots dans la liste
-        compte[valeur] += 1
-    noeud[cle] = compte  # Ajoute le nombre de fois qu'apparait un nom dans chaque formule
-    cle += 1  # Incrémente la clé du dictionnaire de stockage
-
-    print(noeud)
-    """Calcule le nombre de fois qu'un nom apparait dans toutes les formules"""
-    #  A mettre dans une autre fonction
-
-    # for element in noeud.values():  # Parcous le dictionnaire de dictionnaire
-    #     for i in element:  # Parcours chaque élémément du dictionnaire
-    #         if i not in noeud2.keys():  # Regarde si un élement est dans la liste sinon l'ajoute
-    #             noeud2[i] = 1  # Ajoute l'élément et l'initialise a 1
-    #         else:
-    #             noeud2[i] += 1  # Incrémente la valeur si celui ci est présent
-    #
-    # return noeud2  # Revoie le dictionnaire avec les nobres d'apparition des noms
-
-
-"""Calcule les taille des arcs"""
-
-"""Cooccurence avec liste en entrée"""
-
 
 def coocurenceListe(liste):  # Permet de calculer la Coocurence des formules
     """
@@ -168,13 +108,14 @@ def coocurenceListe(liste):  # Permet de calculer la Coocurence des formules
     poids = {}  # Dictionnaire qui indique le nombre total d'apparition du mot
     cle = 0  # Clé pour le dictionnaire à incrémenter
     noeud = {}  # Dictionnaire qui indique le nombre de formules où un mot est mentionné (unique)
-    arc = {}  # Dictionnaire pour voir les relations entre les mots
+    nomsDansFormules = {}  # Dictionnaire pour voir les relations entre les mots
     clea = 0  # Clé pour les arcs
+
     # Lit pour chaque élément de la liste
     for element in liste:  # Applique pour chaque élément de la liste le traitement de la formule
         formule = element
-
         res = formule.split(" ")  # Permet de découper la formule en supprimant les espaces
+
         for i in res:
             for j in signes.values():  # Regarde dans le dictionnaire des signes si il apparait
                 if i == j:
@@ -192,12 +133,13 @@ def coocurenceListe(liste):  # Permet de calculer la Coocurence des formules
 
         """Calcule le nombre total d'apparition du mot"""
         chaine = ""  # Création de la chaine vide qui sera split par l'espace
+
         for i in temp:  # Parcours la liste temp pour la traduire en chaine de caractère
             chaine += i
         final = chaine.split(" ")  # Coupe la chaine de caractère à l'espace pour en refaire uen liste
 
         """Ajoute les listes de noms à un dictionnaire"""
-        arc[clea] = final
+        nomsDansFormules[clea] = final
         clea += 1
 
         compte = {}.fromkeys(set(final), 0)  # Définit le compteur pour chaque mot présent
@@ -206,10 +148,21 @@ def coocurenceListe(liste):  # Permet de calculer la Coocurence des formules
             compte[valeur] += 1
         poids[cle] = compte  # Ajoute le nombre de fois qu'apparait un nom dans chaque formule
         cle += 1  # Incrémente la clé du dictionnaire de stockage
+
+    """Calcul pour les arcs"""
+    arc = {}  # Initialise le dictionnaire avec sa clé
+    key = 0
+
     print("arc")
+    for element in nomsDansFormules.values():  # regarde dans le dictionnaires des noms dans les formules
+        arc[key] = couplesArcs(element)  # Pour chaque formule ajoute les couples uniques au dictionnaire
+        key += 1
     print(arc)
+
+    """ Calcul pour savoir le nombre d'apparition du nom"""
     # nombre total d'apparition
     apparait = {}
+
     for elem, val in poids.items():  # Regarde dans le Dictionnaire
         for nom, nombre in val.items():  # Ragarde dans le dictionnaire du dictionnaire
             if nom not in apparait:
@@ -218,6 +171,7 @@ def coocurenceListe(liste):  # Permet de calculer la Coocurence des formules
                 apparait[nom] += nombre  # Ajoute la valeur si le nom existe déjà
     print("apparait")
     print(apparait)
+
     """Calcule le nombre de fois qu'un nom apparait dans toutes les formules"""
 
     for element in poids.values():  # Parcous le dictionnaire de dictionnaire
@@ -230,10 +184,79 @@ def coocurenceListe(liste):  # Permet de calculer la Coocurence des formules
     print(noeud)
     # return noeud, poids  # Revoie le dictionnaire avec les nombres d'apparition des noms par formules et le total
 
-    """Calcul pour les arcs"""
+
+"""Fonction qui couples les noms pour les arcs"""
+
+
+def couplesArcs(formule):
+    # Traitement de la formule 1 ahahah
+
+    listeNoms = []
+    for element in noms.values():  # récupère la liste de noms
+        if element in formule:
+            listeNoms.append(element)
+
+    couples = []  # fait les associations soit des tuples
+    dernierElemListe = len(listeNoms) - 1  # Eviter les out of index
+
+    # Version For a tester
+    for i in range(dernierElemListe):  # Pour chaque élément crée une paire avec les eléments suivants
+        j = 0  # Initialise pour le tant que
+        while j < dernierElemListe:
+            # Vérifie que les noms soit différents et fait des paires uniques
+            if listeNoms[i] != listeNoms[j + 1] and ((listeNoms[j + 1], listeNoms[i]) not in couples):
+                couples.append((listeNoms[i], listeNoms[j + 1]))
+            j += 1
+    return couples
+    # for element in formule:  # Regarde par quoi est séparé les noms
+    #
+    #     # Faire la même avec l'appel du dictionnaire
+    #     if element == "/":
+    #         print("Jusxtaposé")
+    #     elif element == "(":
+    #         print("début de distributivité")
+    #     elif element == ")":
+    #         print("Fin de distributivité")
+    #     elif element == "#":
+    #         print("qualifie")
+    #     elif element == "[":
+    #         print("Début ensemble")
+    #     elif element == "]":
+    #         print("Fin ensemble")
+    #     elif element == "+":
+    #         print("coordination")
+    #     elif element == "=":
+    #         print("equivalence")
+    #     else:
+    #         print(element)
+
+
+def traiteSymbole(formule):
+    for element in formule:  # Regarde par quoi est séparé les noms
+
+        # Faire la même avec l'appel du dictionnaire
+        if element == "/":
+            print("Jusxtaposé")
+        elif element == "(":
+            print("début de distributivité")
+        elif element == ")":
+            print("Fin de distributivité")
+        elif element == "#":
+            print("qualifie")
+        elif element == "[":
+            print("Début ensemble")
+        elif element == "]":
+            print("Fin ensemble")
+        elif element == "+":
+            print("coordination")
+        elif element == "=":
+            print("equivalence")
+        else:
+            print(element)
 
 
 if __name__ == "__main__":
     # print(coocurenceArc(f12))
     coocurenceListe(attestations)
     print("")
+    # traiteFormule(f4)
