@@ -22,6 +22,12 @@ Définition des symbloles :
 Travaillons sur un algorithme pour travailler la formule
 """
 
+import csv
+
+global noeud
+global poids
+global arc
+
 #  Liste des formules à étudier
 
 f1 = "Zeus / Hêlios / Megas / Sarapis"
@@ -182,7 +188,24 @@ def coocurenceListe(liste):  # Permet de calculer la Coocurence des formules
                 noeud[i] += 1  # Incrémente la valeur si celui ci est présent
     print("noeud")
     print(noeud)
-    # return noeud, poids  # Revoie le dictionnaire avec les nombres d'apparition des noms par formules et le total
+
+    """Ecrit dans un csv les résultats"""
+
+    """Test écriture CSV pour les noeuds"""
+    with open('Nodes.csv', 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter=';')
+
+        writer.writerow(noeud.keys())
+        writer.writerow(noeud.values())
+        writer.writerow(apparait.values())
+
+    """Test écriture du CSv pour les Arcs"""
+    with open('Edges.csv', 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter=';')
+        writer.writerow(arc.keys())
+        writer.writerow(arc.values())
+
+    return noeud, poids, arc  # Revoie le dictionnaire avec les nombres d'apparition des noms par formules et le total
 
 
 """Fonction qui couples les noms pour les arcs"""
@@ -197,38 +220,19 @@ def couplesArcs(formule):
             listeNoms.append(element)
 
     couples = []  # fait les associations soit des tuples
-    dernierElemListe = len(listeNoms) - 1  # Eviter les out of index
+    dernierElemListe = len(listeNoms)  # Eviter les out of index
 
-    # Version For a tester
-    for i in range(dernierElemListe):  # Pour chaque élément crée une paire avec les eléments suivants
-        j = 0  # Initialise pour le tant que
-        while j < dernierElemListe:
-            # Vérifie que les noms soit différents et fait des paires uniques
-            if listeNoms[i] != listeNoms[j + 1] and ((listeNoms[j + 1], listeNoms[i]) not in couples):
-                couples.append((listeNoms[i], listeNoms[j + 1]))
-            j += 1
+    if dernierElemListe == 1:  # Si le nom est seul l'ajoute a la liste sinon fait les couples
+        couples.append(listeNoms[0])
+    else:
+        for i in range(dernierElemListe - 1):  # Pour chaque élément crée une paire avec les eléments suivants
+            j = 0  # Initialise pour le tant que
+            while j < dernierElemListe - 1:
+                # Vérifie que les noms soit différents et fait des paires uniques
+                if listeNoms[i] != listeNoms[j + 1] and ((listeNoms[j + 1], listeNoms[i]) not in couples):
+                    couples.append((listeNoms[i], listeNoms[j + 1]))
+                j += 1
     return couples
-    # for element in formule:  # Regarde par quoi est séparé les noms
-    #
-    #     # Faire la même avec l'appel du dictionnaire
-    #     if element == "/":
-    #         print("Jusxtaposé")
-    #     elif element == "(":
-    #         print("début de distributivité")
-    #     elif element == ")":
-    #         print("Fin de distributivité")
-    #     elif element == "#":
-    #         print("qualifie")
-    #     elif element == "[":
-    #         print("Début ensemble")
-    #     elif element == "]":
-    #         print("Fin ensemble")
-    #     elif element == "+":
-    #         print("coordination")
-    #     elif element == "=":
-    #         print("equivalence")
-    #     else:
-    #         print(element)
 
 
 def traiteSymbole(formule):
