@@ -1,92 +1,92 @@
-# -- coding: utf-8 --
+# -- coding: windows-1252 --
 # Created by Slackh
 # Github : https://github.com/Stanislackh
 
 """ Fichier test pour le traitement des formules avec certaines contraintes
 
-DÃ©finition des symbloles :
+Définition des symbloles :
     /   Symbole de la juxtaposition
     #   Symbole d'un qualifiant
     +   Symbole de la coordination => et
-    ()  Symbole de la distributivitÃ©
+    ()  Symbole de la distributivité
     []  Symbole de l'ensemble
-    =   Symbole de l'Ã©quivalence
+    =   Symbole de l'équivalence
 
-    une formule ressemble Ã  ceci:   ([Kurios # Zeus] + HÃªra ) # EpÃªkoos
+    une formule ressemble à ceci:   ([Kurios # Zeus] + Hêra ) # Epêkoos
 
-    la dÃ©composition est la suivante:
+    la décomposition est la suivante:
 
-    Kurios Zeus est un ensemble dans lequel Kurios dÃ©finit Zeus et HÃªra est dÃ©finit EpÃªkoos ainsi que Kurios Zeus
-    Ensemble                                                  Coordianation         DistributivitÃ©
+    Kurios Zeus est un ensemble dans lequel Kurios définit Zeus et Hêra est définit Epêkoos ainsi que Kurios Zeus
+    Ensemble                                                  Coordianation         Distributivité
 
 Travaillons sur un algorithme pour travailler la formule
 """
 
+"""Liste des imports nécéssaires"""
+
 import csv
+import os
+from collections import Counter
 
-global noeud
-global poids
-global arc
+#  Liste des formules à étudier
 
-#  Liste des formules Ã  Ã©tudier
-
-f1 = "Zeus / HÃªlios / Megas / Sarapis"
-f2 = "[ApollÃ´n # Puthios] + [ApollÃ´n # Kedrieus]"
-f3 = "ApollÃ´n # (Puthios + Kedrieus)"
-f4 = "([Kurios # Zeus] + HÃªra) # EpÃªkoos"
-f5 = "[AmmÃ´n = Chnoubis] + [HÃªra = Satis] + [Hestia = Anoukis]"
-f6 = "(Zeus + HÃªra) # SÃ´tÃªr"
-f7 = "[Theos # SÃ´tÃªr] # (Artemis + ApollÃ´n)"
-f8 = "[Zeus # SÃ´tÃªr] + (AthÃªna # SÃ´tÃªr)"
-f9 = "[Zeus # Boulaios] + [AthÃªna # Boulaios] + Hestia"
+f1 = "Zeus / Hêlios / Megas / Sarapis"
+f2 = "[Apollôn # Puthios] + [Apollôn # Kedrieus]"
+f3 = "Apollôn # (Puthios + Kedrieus)"
+f4 = "([Kurios # Zeus] + Hêra) # Epêkoos"
+f5 = "[Ammôn = Chnoubis] + [Hêra = Satis] + [Hestia = Anoukis]"
+f14 = "Isis # Sôtêr # (Astartê / Aphroditê) # (Euploia + Epêkoos)"
+f7 = "[Theos # Sôtêr] # (Artemis + Apollôn)"
+f6 = "(Zeus + Hêra) # Sôtêr"
+f8 = "[Zeus # Sôtêr] + (Athêna # Sôtêr)"
+f9 = "[Zeus # Boulaios] + [Athêna # Boulaios] + Hestia"
+f13 = "Apollôn # (Dêlios + Kalumnas-Medeôn)"
+f15 = "(Asklêpios + Hugieia + Telesphoros) # Alexiponos"
 f10 = "Artemis # Puthios"
 f11 = "Dionusos # Phleos"
-f12 = "[Zeus # BrontÃ´n] + [Zeus # KarpodotÃªs] + [Zeus # Eucharistos]"
-f13 = "ApollÃ´n # (DÃªlios + Kalumnas-MedeÃ´n)"
-f14 = "Isis # SÃ´tÃªr # (AstartÃª / AphroditÃª) # (Euploia + EpÃªkoos)"
-f15 = "(AsklÃªpios + Hugieia + Telephoros) # Alexiponos"
-f16 = "SÃ´tÃªr"
+f16 = "Sôtêr"
+f12 = "[Zeus # Brontôn] + [Zeus # Karpodotês] + [Zeus # Eucharistos]"
 
 # Liste des attestations
-attestations = [f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16]
-
+attestations = [f1]  # , f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16]
 """Liste des Dieux et Mots"""
 
 noms = {
     1: "Zeus",
-    2: "HÃªlios",
+    2: "Hêlios",
     3: "Megas",
     4: "Sarapis",
-    5: "ApollÃ´n",
+    5: "Apollôn",
     6: "Puthios",
     7: "Kedrieus",
     8: "Kurios",
-    9: "HÃªra",
-    10: "EpÃªkoos",
-    11: "AmmÃ´n",
+    9: "Hêra",
+    10: "Epêkoos",
+    11: "Ammôn",
     12: "Chnoubis",
     13: "Satis",
     14: "Hestia",
     15: "Anoukis",
     16: "Isis",
-    17: "SÃ´tÃªr",
-    18: "AstartÃª",
-    19: "AphroditÃª",
+    17: "Sôtêr",
+    18: "Astartê",
+    19: "Aphroditê",
     20: "Euploia",
-    21: "Theoi",
+    21: "Theos",
     22: "Artemis",
-    23: "AthÃªna",
+    23: "Athêna",
     24: "Boulaios",
-    25: "DÃªlios",
-    26: "Kalumnas-MedeÃ´n",
+    25: "Dêlios",
+    26: "Kalumnas-Medeôn",
     27: "Hugieia",
     28: "Telesphoros",
     29: "Alexiponos",
     30: "Dionusos",
     31: "Phleos",
-    32: "BrontÃ´n",
-    33: "KarpodotÃªs",
-    34: "Eucharistos"}
+    32: "Brontôn",
+    33: "Karpodotês",
+    34: "Eucharistos",
+    35: "Asklêpios"}
 
 """ Liste des signes pour les formules """
 
@@ -106,64 +106,63 @@ signes = {
 def coocurenceListe(liste):  # Permet de calculer la Coocurence des formules
     """
     :param Liste de formules
-    :return Le nombre de fois qu'un nom appraÃ®t dans la formule
+    :return Le nombre de fois qu'un nom appraît dans la formule
 
     """
 
     """Compte le poids pour les noeuds"""
     poids = {}  # Dictionnaire qui indique le nombre total d'apparition du mot
-    cle = 0  # ClÃ© pour le dictionnaire Ã  incrÃ©menter
-    noeud = {}  # Dictionnaire qui indique le nombre de formules oÃ¹ un mot est mentionnÃ© (unique)
+    cle = 0  # Clé pour le dictionnaire à incrémenter
+    noeud = {}  # Dictionnaire qui indique le nombre de formules où un mot est mentionné (unique)
     nomsDansFormules = {}  # Dictionnaire pour voir les relations entre les mots
-    clea = 0  # ClÃ© pour les arcs
+    clea = 0  # Clé pour les arcs
 
-    # Lit pour chaque Ã©lÃ©ment de la liste
-    for element in liste:  # Applique pour chaque Ã©lÃ©ment de la liste le traitement de la formule
+    # Lit pour chaque élément de la liste
+    for element in liste:  # Applique pour chaque élément de la liste le traitement de la formule
         formule = element
-        res = formule.split(" ")  # Permet de dÃ©couper la formule en supprimant les espaces
+        res = formule.split(" ")  # Permet de découper la formule en supprimant les espaces
 
         for i in res:
             for j in signes.values():  # Regarde dans le dictionnaire des signes si il apparait
                 if i == j:
-                    res.remove(j)  # Supprime les signes spÃ©ciaux des formules
+                    res.remove(j)  # Supprime les signes spéciaux des formules
         temp = []  # Liste temporaire
 
         # A mettre dans une autre fonction
-        for i in res:  # Permet de parcourir les Ã©lÃ©ment de la liste res
-            temp.append(" ")  # Ajoute chaque element Ã  la liste coupÃ© a l'espace
+        for i in res:  # Permet de parcourir les élément de la liste res
+            temp.append(" ")  # Ajoute chaque element à la liste coupé a l'espace
             for j in i:
-                if j not in signes.values():  # Ajoute les caractÃ¨res non spÃ©ciaux
+                if j not in signes.values():  # Ajoute les caractères non spéciaux
                     temp.append(j)
 
-        del temp[0]  # Supprime l'espace ajoutÃ© au dÃ©but de la liste
+        del temp[0]  # Supprime l'espace ajouté au début de la liste
 
         """Calcule le nombre total d'apparition du mot"""
-        chaine = ""  # CrÃ©ation de la chaine vide qui sera split par l'espace
+        chaine = ""  # Création de la chaine vide qui sera split par l'espace
 
-        for i in temp:  # Parcours la liste temp pour la traduire en chaine de caractÃ¨re
+        for i in temp:  # Parcours la liste temp pour la traduire en chaine de caractère
             chaine += i
-        final = chaine.split(" ")  # Coupe la chaine de caractÃ¨re Ã  l'espace pour en refaire uen liste
+        final = chaine.split(" ")  # Coupe la chaine de caractère à l'espace pour en refaire uen liste
 
-        """Ajoute les listes de noms Ã  un dictionnaire"""
+        """Ajoute les listes de noms à un dictionnaire"""
         nomsDansFormules[clea] = final
         clea += 1
-
-        compte = {}.fromkeys(set(final), 0)  # DÃ©finit le compteur pour chaque mot prÃ©sent
+        compte = {}.fromkeys(set(final), 0)  # Définit le compteur pour chaque mot présent
 
         for valeur in final:  # Compte le nombre d'occurence de mots dans la liste
             compte[valeur] += 1
         poids[cle] = compte  # Ajoute le nombre de fois qu'apparait un nom dans chaque formule
-        cle += 1  # IncrÃ©mente la clÃ© du dictionnaire de stockage
+        cle += 1  # Incrémente la clé du dictionnaire de stockage
 
     """Calcul pour les arcs"""
-    arc = {}  # Initialise le dictionnaire avec sa clÃ©
+    arc = {}  # Initialise le dictionnaire avec sa clé
     key = 0
 
-    print("arc")
     for element in nomsDansFormules.values():  # regarde dans le dictionnaires des noms dans les formules
         arc[key] = couplesArcs(element)  # Pour chaque formule ajoute les couples uniques au dictionnaire
         key += 1
-    print(arc)
+
+    weightEdges = nomsNombres(arc)  # Appel de la fonction qui transforme les couples en Sources Targets
 
     """ Calcul pour savoir le nombre d'apparition du nom"""
     # nombre total d'apparition
@@ -172,38 +171,22 @@ def coocurenceListe(liste):  # Permet de calculer la Coocurence des formules
     for elem, val in poids.items():  # Regarde dans le Dictionnaire
         for nom, nombre in val.items():  # Ragarde dans le dictionnaire du dictionnaire
             if nom not in apparait:
-                apparait[nom] = nombre  # Ajoute le mot et sa valeur associÃ©e
+                apparait[nom] = nombre  # Ajoute le mot et sa valeur associée
             else:
-                apparait[nom] += nombre  # Ajoute la valeur si le nom existe dÃ©jÃ 
-    print("apparait")
-    print(apparait)
+                apparait[nom] += nombre  # Ajoute la valeur si le nom existe déjà
 
     """Calcule le nombre de fois qu'un nom apparait dans toutes les formules"""
 
     for element in poids.values():  # Parcous le dictionnaire de dictionnaire
-        for i in element:  # Parcours chaque Ã©lÃ©mÃ©ment du dictionnaire
-            if i not in noeud.keys():  # Regarde si un Ã©lement est dans la liste sinon l'ajoute
-                noeud[i] = 1  # Ajoute l'Ã©lÃ©ment et l'initialise a 1
+        for i in element:  # Parcours chaque élémément du dictionnaire
+            if i not in noeud.keys():  # Regarde si un élement est dans la liste sinon l'ajoute
+                noeud[i] = 1  # Ajoute l'élément et l'initialise a 1
             else:
-                noeud[i] += 1  # IncrÃ©mente la valeur si celui ci est prÃ©sent
-    print("noeud")
-    print(noeud)
+                noeud[i] += 1  # Incrémente la valeur si celui ci est présent
 
-    """Ecrit dans un csv les rÃ©sultats"""
+    """Ecrit dans un csv les résultats en appelant la fonction csvGraphes"""
 
-    """Test Ã©criture CSV pour les noeuds"""
-    with open('Nodes.csv', 'w', newline='') as csvfile:
-        writer = csv.writer(csvfile, delimiter=';')
-
-        writer.writerow(noeud.keys())
-        writer.writerow(noeud.values())
-        writer.writerow(apparait.values())
-
-    """Test Ã©criture du CSv pour les Arcs"""
-    with open('Edges.csv', 'w', newline='') as csvfile:
-        writer = csv.writer(csvfile, delimiter=';')
-        writer.writerow(arc.keys())
-        writer.writerow(arc.values())
+    csvGraphes(noeud, apparait, weightEdges)  # les 3 dictionnaires associés en paramètres
 
     return noeud, poids, arc  # Revoie le dictionnaire avec les nombres d'apparition des noms par formules et le total
 
@@ -212,10 +195,8 @@ def coocurenceListe(liste):  # Permet de calculer la Coocurence des formules
 
 
 def couplesArcs(formule):
-    # Traitement de la formule 1 ahahah
-
     listeNoms = []
-    for element in noms.values():  # rÃ©cupÃ¨re la liste de noms
+    for element in noms.values():  # récupère la liste de noms
         if element in formule:
             listeNoms.append(element)
 
@@ -225,42 +206,170 @@ def couplesArcs(formule):
     if dernierElemListe == 1:  # Si le nom est seul l'ajoute a la liste sinon fait les couples
         couples.append(listeNoms[0])
     else:
-        for i in range(dernierElemListe - 1):  # Pour chaque Ã©lÃ©ment crÃ©e une paire avec les elÃ©ments suivants
+        for i in range(dernierElemListe - 1):  # Pour chaque élément crée une paire avec les eléments suivants
             j = 0  # Initialise pour le tant que
             while j < dernierElemListe - 1:
-                # VÃ©rifie que les noms soit diffÃ©rents et fait des paires uniques
+                # Vérifie que les noms soit différents et fait des paires uniques
                 if listeNoms[i] != listeNoms[j + 1] and ((listeNoms[j + 1], listeNoms[i]) not in couples):
                     couples.append((listeNoms[i], listeNoms[j + 1]))
                 j += 1
     return couples
 
 
-def traiteSymbole(formule):
-    for element in formule:  # Regarde par quoi est sÃ©parÃ© les noms
+"""Transorme les couples de noms de l'arc par rappout au dictionnaire des noms"""
 
-        # Faire la mÃªme avec l'appel du dictionnaire
-        if element == "/":
-            print("JusxtaposÃ©")
-        elif element == "(":
-            print("dÃ©but de distributivitÃ©")
-        elif element == ")":
-            print("Fin de distributivitÃ©")
-        elif element == "#":
+
+def nomsNombres(dicoArc):  # Penser a faire le compte pour le nombre de paires identiques
+
+    source = []
+    target = []
+
+    for element in dicoArc.values():  # Regarde pour chaque couple de nom l'id qui correspond a chaque nom
+        for paire in element:
+            for cle, valeur in noms.items():
+                if valeur == paire[0]:
+                    source.append(cle)
+                if valeur == paire[1]:
+                    target.append(cle)
+
+    sourceTarget = []  # Liste initiale pour les couples d'Id
+
+    for i in range(len(source)):  # Ajoute a la liste le nouveau couples d'Id
+        sourceTarget.append((source[i], target[i]))
+
+    def getKey(item):  # Fonction interne pour faire le tri par le premier élement du tuple
+        return item[0]
+
+    print(sourceTarget)
+    sourceTargetSorted = sorted(sourceTarget, key=getKey)  # Trie la liste par le premier élément
+    weightEdge = comptePoidsArc(sourceTargetSorted)  # Appelle la fonction qui compte le nombre d'itération identiques
+    print(weightEdge)
+
+    return weightEdge
+
+
+"""Compter le nombre d'occurences des paires"""
+
+
+def comptePoidsArc(couplesId):  # Compte le nombre de fois où le couple apparaît
+
+    poidsArc = Counter(couplesId)
+    return poidsArc
+
+
+"""Ecrit les CSV pour les arcs et les Noeuds"""
+
+
+def csvGraphes(noeud, apparait, arc):
+    if os.path.exists("Nodes.csv"):  # Si le fichier existe il est supprimé pour en créer un nouveau
+        os.remove("Nodes.csv")
+        nodes(noeud, apparait)
+    else:
+        nodes(noeud, apparait)
+
+    """Test écriture du CSV pour les Arcs"""
+    if os.path.exists("Edges.csv"):  # Si le fichier existe il est supprimé pour en créer un nouveau
+        os.remove("Edges.csv")
+        edges(arc)
+    else:
+        edges(arc)
+
+
+""" Ecriture des noeuds dans un csv"""
+
+
+def nodes(noeud, apparait):  # faire une option de nommage du fichier
+    with open('Nodes.csv', 'w', newline='', encoding='windows-1252') as csvfile:
+        writer = csv.writer(csvfile, delimiter=';')
+        writer.writerow(("Nodes", "Id", "Label", "Weight", "Weight2"))  # Ecriture en-tête du fichier
+
+        tempElem = []  # listes temporaires
+        tempCle = []
+        tempApparait = []
+        rez = []
+
+        for cle, element in apparait.items():  # Récupération dans les listes
+            tempCle.append(cle)  # Label
+            tempElem.append(element)  # Weight2
+
+        for i in tempCle:  # Associe au nom la clé du dictionnaire
+            for cle, element in noms.items():
+                if element == i:
+                    rez.append(cle)
+
+        for nombre in noeud.values():  # Récupération dans une liste
+            tempApparait.append(nombre)  # Weight1
+
+        for id in range(len(apparait.values())):  # Ecriture des ligens du csv
+            writer.writerow((id + 1, rez[id], tempCle[id], tempApparait[id], tempElem[id]))
+
+
+""" Ecritures des arc dans un csv"""
+
+
+def edges(arc):  # faire une option de nommage du fichier
+    with open('Edges.csv', 'w', newline='', encoding='windows-1252') as csvfile:
+        writer = csv.writer(csvfile, delimiter=';')
+        writer.writerow(("Source", "Target", "Type", "Id", "libelle", "Weight"))  # Ecriture en-tête du fichier
+
+        id = 0  # Clé pour l'id
+        for cle, element in arc.items():
+            writer.writerow((cle[0], cle[1], "Undirected", id, "", element))
+            id += 1
+
+
+"""Traite les symboles"""
+
+
+def traiteSymbole(formule):
+    for carac in formule:  # Regarde par quoi est séparé les noms
+
+        # Faire la même avec l'appel du dictionnaire
+        if carac == "/":
+            print("Jusxtaposé")
+        elif carac == "(":
+            print("début de distributivité")
+        elif carac == ")":
+            print("Fin de distributivité")
+        elif carac == "#":
             print("qualifie")
-        elif element == "[":
-            print("DÃ©but ensemble")
-        elif element == "]":
+        elif carac == "[":
+            print("Début ensemble")
+        elif carac == "]":
             print("Fin ensemble")
-        elif element == "+":
+        elif carac == "+":
             print("coordination")
-        elif element == "=":
+        elif carac == "=":
             print("equivalence")
         else:
-            print(element)
+            print(carac)
+
+
+def traiteFormule(formule):
+
+    chaine = ""
+
+        # elif carac == "(":
+        #     print("début de distributivité")
+        # elif carac == ")":
+        #     print("Fin de distributivité")
+        # elif carac == "#":
+        #     print("qualifie")
+        # elif carac == "[":
+        #     print("Début ensemble")
+        # elif carac == "]":
+        #     print("Fin ensemble")
+        # elif carac == "+":
+        #     print("coordination")
+        # elif carac == "=":
+        #     print("equivalence")
+        # else:
+        #     print(carac)
+
 
 
 if __name__ == "__main__":
     # print(coocurenceArc(f12))
-    coocurenceListe(attestations)
+    # coocurenceListe(attestations)  # OK Done !
     print("")
-    # traiteFormule(f4)
+    traiteFormule(f1)
