@@ -8,8 +8,8 @@
 cas1 = "([a#b] + [[c#d] / [e#f]])# [g#h]"
 # => [a#b]# [g#h] + [[c#d] / [e#f]]# [g#h]
 
-cas2 = "a#(b+c)"  # CAS OK
-
+cas2 = "(b+c)#a"  # CAS OK
+cas8 = "a#b"
 cas3 = "a #(b + c)"
 # => a#b + a#c
 
@@ -18,9 +18,10 @@ cas4 = "(a+b)         #c"
 
 cas5 = "Apollôn # (Puthios + Kedrieus)"
 cas6 = "Apollôn + (Puthios + Kedrieus)"
-cas7 = "[a + b] #(a+s) + a"
+cas7 = "[a + b] (a+s) + a"
+
 """Liste de cas"""
-listeCas = [cas7, cas2, cas5]
+listeCas = [cas3]
 
 """ Liste des signes pour les formules """
 
@@ -59,7 +60,6 @@ dicoErreurs = {
 
     ")+": True,
     ")/": True,
-    ")#": True,
     ")(": True,
     ")[": True,
     ")=": True,
@@ -71,8 +71,6 @@ dicoErreurs = {
     "[]": True,
     "[=": True,
 
-    "]+": True,
-    "]/": True,
     "]#": True,
     "](": True,
     "]=": True,
@@ -90,7 +88,9 @@ dicoErreurs = {
 
 
 def splitPropre(listeCas):
+    # Récupère les formules sans espaces
     listeCasNettoye = supprimeEspace(listeCas)
+
     # Si une des fonctions retourne True ne passe pas à la suite
     if (checkNbParCroch(listeCasNettoye) is False) and (caracMalPlace(listeCasNettoye) is False):
 
@@ -115,11 +115,8 @@ def splitPropre(listeCas):
             pileB.append(pileA)
             pileA = []
 
-        print(pileA)
-        print(pileB)
-
-    # else:
-    #     print("ce symbole est inconnu erreur de saisie !")
+        # print(pileB)
+        distributivite(pileB)  # Applique la distibutivité si il y en a
 
 
 """Regarde si les nombres de crochets et parenthèses ouvrante fermante sont identiques"""
@@ -170,14 +167,12 @@ def caracMalPlace(listeCasNettoye):  # Regare dans la liste des erreurs de synta
                             ((phrase[indice] == "]") and (phrase[indice + 1] not in signes.values())) or \
                             ((phrase[indice] not in signes.values()) and (phrase[indice + 1] == "(")) or \
                             ((phrase[indice] not in signes.values()) and (phrase[indice + 1] == "[")):
+                        print("Erreur de saisie, Vérifiez la syntaxe de " + phrase)
                         print(phrase[indice] + phrase[indice + 1])
-                        print("Erreur de saisie, Vérifiez la syntaxe")
                         syntaxeErreur = True
                         return syntaxeErreur
 
     return syntaxeErreur
-    # print(temp)
-    # print(temp[0])
 
 
 """Supprime les espaces de la chaine de caractère"""
@@ -199,6 +194,63 @@ def supprimeEspace(listeCas):
     return listeCasNettoye
 
 
+"""(b+c)#a"""""
+
+
+def distributivite(listeFormule):
+    # Pile pour la gestion des  parentheses
+    pileA = []
+    pileB = []
+
+    # Pile pour la gestion des  #
+    pileC = []
+    pileD = []
+
+    # Resultat de la distributivité
+    res = []
+
+    for formule in listeFormule:  # Récupération de l'expression dans la parenthèse
+        for indice in range(len(formule)):
+            compt = indice
+            if formule[indice] == "(":
+                while formule[compt] != ")":
+                    pileA.append(formule[compt])
+                    compt += 1
+            elif formule[indice] == "#":
+                if (formule[indice - 1] not in signes.values()) and (formule[indice + 1] not in signes.values()):
+                    pileD.append(formule[indice - 1])
+                    pileD.append(formule[indice])
+                    pileD.append(formule[indice + 1])
+                elif formule[indice - 1] not in signes.values():
+                    pileC.append(formule[indice - 1])
+                    pileC.append(formule[indice])
+                elif formule[indice + 1] not in signes.values():
+                    pileC.append(formule[indice])
+                    pileC.append(formule[indice + 1])
+
+        if len(pileA) != 0:  # Supprime la première parenthèse
+            del pileA[0]
+
+        pileB.append(pileA)
+        pileA = []
+
+        for i in pileB:
+            print(i)
+            for j in i:
+                print(j)
+                if j not in signes.values():
+                    res.append(j)
+                    for k in pileC:
+                        res.append(k)
+                elif j == "+":
+                    res.append(j)
+    print(res)
+
+    """ reste a faire la distributivité dans l'autre sens"""
+    # print(pileA)
+    # print(pileB)
+    # print(pileC)
+    # print(pileD)
+
+
 splitPropre(listeCas)
-# caracMalPlace(listeCas)
-# supprimeEspace(listeCas)
