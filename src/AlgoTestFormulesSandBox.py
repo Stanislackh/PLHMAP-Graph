@@ -32,7 +32,9 @@ from collections import Counter
 
 f1 = "Zeus / Hêlios / Megas / Sarapis"
 f2 = "[Apollôn # Puthios] + [Apollôn # Kedrieus]"
+
 f3 = "Apollôn # (Puthios + Kedrieus)"
+
 f4 = "([Kurios # Zeus] + Hêra) # Epêkoos"
 f5 = "[Ammôn = Chnoubis] + [Hêra = Satis] + [Hestia = Anoukis]"
 f14 = "Isis # Sôtêr # (Astartê / Aphroditê) # (Euploia + Epêkoos)"
@@ -48,7 +50,8 @@ f16 = "Sôtêr"
 f12 = "[Zeus # Brontôn] + [Zeus # Karpodotês] + [Zeus # Eucharistos]"
 
 # Liste des attestations
-attestations = [f1]  # , f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16]
+global attestations
+attestations = [f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16]
 """Liste des Dieux et Mots"""
 
 noms = {
@@ -240,10 +243,8 @@ def nomsNombres(dicoArc):  # Penser a faire le compte pour le nombre de paires i
     def getKey(item):  # Fonction interne pour faire le tri par le premier élement du tuple
         return item[0]
 
-    print(sourceTarget)
     sourceTargetSorted = sorted(sourceTarget, key=getKey)  # Trie la liste par le premier élément
     weightEdge = comptePoidsArc(sourceTargetSorted)  # Appelle la fonction qui compte le nombre d'itération identiques
-    print(weightEdge)
 
     return weightEdge
 
@@ -286,7 +287,7 @@ def nodes(noeud, apparait):  # faire une option de nommage du fichier
         tempElem = []  # listes temporaires
         tempCle = []
         tempApparait = []
-        rez = []
+        idNoms = []
 
         for cle, element in apparait.items():  # Récupération dans les listes
             tempCle.append(cle)  # Label
@@ -295,13 +296,13 @@ def nodes(noeud, apparait):  # faire une option de nommage du fichier
         for i in tempCle:  # Associe au nom la clé du dictionnaire
             for cle, element in noms.items():
                 if element == i:
-                    rez.append(cle)
+                    idNoms.append(cle)
 
         for nombre in noeud.values():  # Récupération dans une liste
             tempApparait.append(nombre)  # Weight1
 
         for id in range(len(apparait.values())):  # Ecriture des ligens du csv
-            writer.writerow((id + 1, rez[id], tempCle[id], tempApparait[id], tempElem[id]))
+            writer.writerow((id + 1, idNoms[id], tempCle[id], tempApparait[id], tempElem[id]))
 
 
 """ Ecritures des arc dans un csv"""
@@ -316,6 +317,22 @@ def edges(arc):  # faire une option de nommage du fichier
         for cle, element in arc.items():
             writer.writerow((cle[0], cle[1], "Undirected", id, "", element))
             id += 1
+
+
+"""Fonction qui affiche le graphe"""
+
+# def drawGraph(noeud, apparait, arc):
+#     G = nx.Graph()
+#
+#     tempLabel = []
+#     tempPoids = []
+#
+#     listeNodes = []
+#     listeEdges = []
+#
+#     for cle, element in apparait.items():  # Récupération dans les listes
+#         tempLabel.append(cle)  # Label
+#         tempPoids.append(element)  # Poids
 
 
 """Traite les symboles"""
@@ -346,30 +363,11 @@ def traiteSymbole(formule):
 
 
 def traiteFormule(formule):
-
-    chaine = ""
-
-        # elif carac == "(":
-        #     print("début de distributivité")
-        # elif carac == ")":
-        #     print("Fin de distributivité")
-        # elif carac == "#":
-        #     print("qualifie")
-        # elif carac == "[":
-        #     print("Début ensemble")
-        # elif carac == "]":
-        #     print("Fin ensemble")
-        # elif carac == "+":
-        #     print("coordination")
-        # elif carac == "=":
-        #     print("equivalence")
-        # else:
-        #     print(carac)
-
+    """Faire la distributivité"""
 
 
 if __name__ == "__main__":
     # print(coocurenceArc(f12))
-    # coocurenceListe(attestations)  # OK Done !
+    coocurenceListe(attestations)  # OK Done !
     print("")
-    traiteFormule(f1)
+    # traiteFormule(f1)
