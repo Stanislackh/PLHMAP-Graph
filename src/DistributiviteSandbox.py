@@ -87,13 +87,6 @@ dicoErreurs = {
     "==": True,
 }
 
-pilePrenthese = []
-nbParO = 0
-nbParF = 0
-nbCrochO = 0
-nbCrochF = 0
-
-
 def splitPropre(listeCas):
     # Si une des fonctions retourne True ne passe pas à la suite
     if (checkNbParCroch(listeCas) is False) and (caracMalPlace(listeCas) is False):
