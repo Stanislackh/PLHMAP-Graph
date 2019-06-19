@@ -9,6 +9,7 @@ cas1 = "([a#b] + [[c#d] / [e#f]])# [g#h]"
 # => [a#b]# [g#h] + [[c#d] / [e#f]]# [g#h]
 
 cas2 = "a#(b+c)"  # CAS OK
+
 cas3 = "a #(b + c)"
 # => a#b + a#c
 
@@ -17,9 +18,9 @@ cas4 = "(a+b)         #c"
 
 cas5 = "Apollôn # (Puthios + Kedrieus)"
 cas6 = "Apollôn + (Puthios + Kedrieus)"
-cas7 = "a+b(a+s)c"
+cas7 = "[a + b] #(a+s) + a"
 """Liste de cas"""
-listeCas = [cas7]
+listeCas = [cas7, cas2, cas5]
 
 """ Liste des signes pour les formules """
 
@@ -87,9 +88,11 @@ dicoErreurs = {
     "==": True,
 }
 
+
 def splitPropre(listeCas):
+    listeCasNettoye = supprimeEspace(listeCas)
     # Si une des fonctions retourne True ne passe pas à la suite
-    if (checkNbParCroch(listeCas) is False) and (caracMalPlace(listeCas) is False):
+    if (checkNbParCroch(listeCasNettoye) is False) and (caracMalPlace(listeCasNettoye) is False):
 
         pileA = []
         pileB = []
@@ -122,14 +125,14 @@ def splitPropre(listeCas):
 """Regarde si les nombres de crochets et parenthèses ouvrante fermante sont identiques"""
 
 
-def checkNbParCroch(listeCas):
+def checkNbParCroch(listeCasNettoye):
     # Liste des variables locales
     nbParO = 0
     nbParF = 0
     nbCrochO = 0
     nbCrochF = 0
 
-    for formule in listeCas:  # Regarde chaque formules
+    for formule in listeCasNettoye:  # Regarde chaque formules
         for carac in formule:
             if carac == "(":  # Ajoute 1 si égal a (
                 nbParO += 1
@@ -152,22 +155,22 @@ def checkNbParCroch(listeCas):
 """Regarde si des caractères spéciaux sont mal placés"""
 
 
-def caracMalPlace(listeCas):  # Regare dans la liste des erreurs de syntaxes si elle y figure
+def caracMalPlace(listeCasNettoye):  # Regare dans la liste des erreurs de syntaxes si elle y figure
 
     syntaxeErreur = False
 
-    for cas in listeCas:  # Regarde dans la liste des formules
+    for cas in listeCasNettoye:  # Regarde dans la liste des formules
         if syntaxeErreur == False:
             temp = cas.split(",")
             for phrase in temp:  # Regarde la formule
                 # Regarde pour chaque paire de caractère si il figure dans le dictionnaire des erreurs
                 for indice in range(len(phrase) - 1):
                     if ((phrase[indice] + phrase[indice + 1]) in dicoErreurs.keys()) or \
-                            ((phrase[indice] == ")") and (phrase[indice + 1] not in signes)) or \
-                            ((phrase[indice] == "]") and (phrase[indice + 1] not in signes)) or \
-                            ((phrase[indice] not in signes) and (phrase[indice + 1] == "(")) or \
-                            ((phrase[indice] not in signes) and (phrase[indice + 1] == "(")):
-
+                            ((phrase[indice] == ")") and (phrase[indice + 1] not in signes.values())) or \
+                            ((phrase[indice] == "]") and (phrase[indice + 1] not in signes.values())) or \
+                            ((phrase[indice] not in signes.values()) and (phrase[indice + 1] == "(")) or \
+                            ((phrase[indice] not in signes.values()) and (phrase[indice + 1] == "[")):
+                        print(phrase[indice] + phrase[indice + 1])
                         print("Erreur de saisie, Vérifiez la syntaxe")
                         syntaxeErreur = True
                         return syntaxeErreur
@@ -177,5 +180,25 @@ def caracMalPlace(listeCas):  # Regare dans la liste des erreurs de syntaxes si 
     # print(temp[0])
 
 
+"""Supprime les espaces de la chaine de caractère"""
+
+
+def supprimeEspace(listeCas):
+    listeCasNettoye = []
+    chaineSansEspace = ""
+
+    for expression in listeCas:  # Ragarde pour chauqe expression
+        for carac in expression:  # Regarde chaque caractère de l'expression, garde tous ceux différents de l'espace
+            if carac == " ":
+                pass
+            else:
+                chaineSansEspace += carac
+        listeCasNettoye.append(chaineSansEspace)  # Rajoute l'expression sans les espaces
+        chaineSansEspace = ""  # Vide la variable tampon
+
+    return listeCasNettoye
+
+
 splitPropre(listeCas)
 # caracMalPlace(listeCas)
+# supprimeEspace(listeCas)
