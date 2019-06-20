@@ -9,14 +9,17 @@ cas1 = "([a#b] + [[c#d] / [e#f]])# [g#h]"
 # => [a#b]# [g#h] + [[c#d] / [e#f]]# [g#h]
 
 cas5 = "Apollôn # (Puthios + Kedrieus)"
-cas6 = "(Zeus + Hêra) # Sôtêr"
+cas6 = "(Zeus = Hêra) # Sôtêr"
 
 cas2 = "(Asklêpios + Hugieia + Telesphoros) # Alexiponos"
 cas3 = "Alexiponos # (Asklêpios + Hugieia + Telesphoros)"
 
 cas4 = "Dionusos # Phleos"
+
+cas7 = "Apollôn # (Dêlios + Kalumnas-Medeôn)"
 """Liste de cas"""
-listeCas = [cas4, cas2, cas5]
+
+listeCas = [cas6,cas4,cas7]
 
 """ Liste des signes pour les formules """
 
@@ -93,6 +96,7 @@ def splitPropre(listeCas):
         pileB = []
 
         for cas in listeCasNettoye:  # Regarde dans la liste des formules
+            print(cas)
             temp = ""  # Variable temporaire pour stocker les caractères non spéciaux
             for element in cas:
                 if element not in signes.values():  # Si pas dans le dico des signes l'ajoute a temp
@@ -214,7 +218,8 @@ def distributiviteParentheses(listeFormule):
                 while formule[compt] != ")":
                     pileA.append(formule[compt])
                     compt += 1
-            elif formule[index] == "#":  # Ajoute a # b
+
+            elif formule[index] == ("#" or "="):  # Ajoute a # b
                 if (formule[index - 1] not in signes.values()) and (formule[index + 1] not in signes.values()):
                     pileD.append(formule[index - 1])
                     pileD.append(formule[index])
@@ -246,7 +251,7 @@ def distributiviteParentheses(listeFormule):
                                     res.append(j)
                                     for k in pileC:  # Rajoute les elements stockés
                                         res.append(k)
-                                elif j == "+":  # Ajoute l'opérateur
+                                elif j == "+" or j == "=":  # Ajoute l'opérateur
                                     res.append(j)
 
                         # Si la formule contient #( distribue de cette façon
@@ -256,7 +261,7 @@ def distributiviteParentheses(listeFormule):
                                     for k in pileC:  # Rajoute les elements stockés
                                         res.append(k)
                                     res.append(j)
-                                elif j == "+":  # Ajoute l'opérateur
+                                elif j == "+" or j == "=":  # Ajoute l'opérateur
                                     res.append(j)
 
                     else:
