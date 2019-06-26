@@ -17,14 +17,13 @@ cas3 = "Alexiponos # (Asklêpios + Hugieia + Telesphoros)"
 cas4 = "Dionusos # Phleos"
 
 cas7 = "Apollôn # (Dêlios + Kalumnas-Medeôn)"
-cas8 = "([Blanc#Noir]+Choco)#Mage"
-
-cas9 = "([choco # mage] + satania)#loli"
 
 cas10 = "(37+38)#35"
 """Liste de cas"""
 
-listeCas = [cas9]
+cas11 = "[Ammôn = Chnoubis] + [Hêra = Satis] + [Hestia = Anoukis] + [Dionusos = Petempamentis] + [Hallos # Theos]"
+
+listeCas = [cas11]
 
 """ Liste des signes pour les formules """
 
@@ -202,6 +201,8 @@ def supprimeEspace(listeCas):
 
 
 def distributiviteCrochet(listeFormule):
+    # Mets les elements entre chochets en 1 element
+    listeFormulesCrochets = separationCrochets(listeFormule)
     # Pile pour la gestion des  parentheses
     pileA = []
     pileB = []
@@ -216,25 +217,14 @@ def distributiviteCrochet(listeFormule):
     dicoResultat = {}
     dicoResultatCle = 0
 
-    for formule in listeFormule:  # Récupération de l'expression dans la parenthèse
+    for formule in listeFormulesCrochets:  # Récupération de l'expression dans la parenthèse
         for index in range(len(formule)):
             compt = index
             if formule[index] == "(":
                 while formule[compt] != ")":
-                    if formule[compt] == "[":
-                        while formule[compt] != "]":
-                            pileA.append(formule[compt])
-                            compt += 1
-                            if formule[compt] == "#":
-                                pileA.append(str.replace("#", "#", "$"))
-                                compt += 1
-                            pileA.append("]")
-                            print(pileA)
-                        pileA.append(formule[compt])
-                    pileA.append("]")
+                    pileA.append(formule[compt])
                     compt += 1
-                    # print(pileA)
-                    # print(pileCr)
+
             elif formule[index] == ("#" or "="):  # Ajoute a # b
                 if (formule[index - 1] not in signes.values()) and (formule[index + 1] not in signes.values()):
                     pileD.append(formule[index - 1])
@@ -380,11 +370,38 @@ def distributiviteParentheses(listeFormule):
     return dicoResultat
 
 
-"""([choco#mage]+satania)#loli => [[choco#mage]#loli] + [satania#loli]"""
+def separationCrochets(listeFormule):
+    listeIntermediareCrochets = []
+    listePropreCrochets = []
+    indice = []
+
+    for formule in listeFormule:  # Lit la formule
+        for index in range(len(formule)):
+            compt = index
+            if formule[index] == "[":  # Si la la valeur à l'index indiqué est [ rentre dans la boucle
+                trigger = ""  # Initaialise la variable de stockage
+                while formule[compt] != "]":  # Tant que l'on rencontre pas ] stocke dans la variable
+                    trigger += formule[compt]  # Récupère la valeur
+                    indice.append(compt)  # Récupère l'indice
+                    compt += 1
+                trigger += formule[compt]  # Ajoute le dernier élemnent a la sortie de boucle
+                indice.append(compt)  # Ajoute le dernier indice a la sortie de boucle
+
+                listeIntermediareCrochets.append(trigger)
+            trigger = ""  # Réinitialise la variable de stockage
+            listeIntermediareCrochets.append(formule[index])
+
+    for i in indice:
+        del listeIntermediareCrochets[indice[0] + 1]  # enlève les caractères qui ont été concaténées
+    listePropreCrochets.append(listeIntermediareCrochets)
+
+    print(listePropreCrochets)
+    return listePropreCrochets
 
 
-def distributivitéCrochetsu(listeFormule):
-    pass
+"""([choco#mage]+satania)#loli => [[choco#mage]#loli] + [satania#loli] => OK"""
 
 
+
+# separationCrochets(listeCas)
 splitPropre(listeCas)

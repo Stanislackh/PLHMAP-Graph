@@ -52,7 +52,10 @@ f12 = "[Zeus # Brontôn] + [Zeus # Karpodotês] + [Zeus # Eucharistos]"
 # Liste des attestations
 global attestations
 attestations = [f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16]
-"""Liste des Dieux et Mots"""
+# """Liste des Dieux et Mots"""
+
+"""Lecture du CSV et stockage dans une liste """
+# def lectureCSV()
 
 noms = {
     1: "Zeus",
@@ -319,6 +322,17 @@ def edges(arc):  # faire une option de nommage du fichier
             id += 1
 
 
+# def writeCSVFormule(listeAttestations):  # Ecrit le CSV des formules de tests
+#     with open('Formules.csv', 'w', newline='', encoding='windows-1252') as csvfile:
+#         writer = csv.writer(csvfile, delimiter=';')
+#         writer.writerow(("Id", "Formule"))  # Ecriture en-tête du fichier
+#
+#         id = 0  # Clé pour l'id
+#         for formule in listeAttestations:
+#             writer.writerow((id, formule))
+#             id += 1
+
+
 """Fonction qui affiche le graphe"""
 
 # def drawGraph(noeud, apparait, arc):
@@ -368,6 +382,7 @@ def traiteFormule(formule):
 
 if __name__ == "__main__":
     # print(coocurenceArc(f12))
-    coocurenceListe(attestations)  # OK Done !
-    print("")
+    writeCSVFormule(attestations)
+    # coocurenceListe(attestations)  # OK Done !
+    # print("")
     # traiteFormule(f1)
