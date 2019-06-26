@@ -22,7 +22,7 @@ cas10 = "(37+38)#35"
 """Liste de cas"""
 
 cas11 = "[Ammôn = Chnoubis] + [Hêra = Satis] + [Hestia = Anoukis] + [Dionusos = Petempamentis] + [Hallos # Theos]"
-
+cas12 = "([choco#mage]+satania)#loli"
 listeCas = [cas11]
 
 """ Liste des signes pour les formules """
@@ -60,7 +60,7 @@ dicoErreurs = {
     "(]": True,
     "(=": True,
 
-    ")+": True,
+    # ")+": True,
     ")/": True,
     ")(": True,
     ")[": True,
@@ -73,7 +73,7 @@ dicoErreurs = {
     "[]": True,
     "[=": True,
 
-    # "]#": True,
+    "]#": True,
     "](": True,
     "]=": True,
     "][": True,
@@ -92,6 +92,7 @@ dicoErreurs = {
 def splitPropre(listeCas):
     # Récupère les formules sans espaces
     listeCasNettoye = supprimeEspace(listeCas)
+    print(listeCasNettoye)
 
     # Si une des fonctions retourne True ne passe pas à la suite
     if (checkNbParCroch(listeCasNettoye) is False) and (caracMalPlace(listeCasNettoye) is False):
@@ -203,6 +204,7 @@ def supprimeEspace(listeCas):
 def distributiviteCrochet(listeFormule):
     # Mets les elements entre chochets en 1 element
     listeFormulesCrochets = separationCrochets(listeFormule)
+    print(listeFormulesCrochets)
     # Pile pour la gestion des  parentheses
     pileA = []
     pileB = []
@@ -376,6 +378,7 @@ def separationCrochets(listeFormule):
     indice = []
 
     for formule in listeFormule:  # Lit la formule
+        print(formule)
         for index in range(len(formule)):
             compt = index
             if formule[index] == "[":  # Si la la valeur à l'index indiqué est [ rentre dans la boucle
@@ -385,12 +388,13 @@ def separationCrochets(listeFormule):
                     indice.append(compt)  # Récupère l'indice
                     compt += 1
                 trigger += formule[compt]  # Ajoute le dernier élemnent a la sortie de boucle
+                # print(trigger)
                 indice.append(compt)  # Ajoute le dernier indice a la sortie de boucle
 
                 listeIntermediareCrochets.append(trigger)
             trigger = ""  # Réinitialise la variable de stockage
             listeIntermediareCrochets.append(formule[index])
-
+            print(listeIntermediareCrochets)
     for i in indice:
         del listeIntermediareCrochets[indice[0] + 1]  # enlève les caractères qui ont été concaténées
     listePropreCrochets.append(listeIntermediareCrochets)

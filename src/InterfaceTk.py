@@ -39,12 +39,13 @@ def ouvrirCSV():
 
     fi = 0
     listeNomFichiers = []
+
     for i in range(len(fichiers)):
-        r = os.path.split(fichiers[fi])
-        listeNomFichiers.append(r[1])
+        r = os.path.split(fichiers[fi])  # Coupe le path et le fichier
+        listeNomFichiers.append(r[1])  # Récupère le nom du fichier
         fi += 1
 
-    fenDestroy(fenAccueil)
+    fenDestroy(fenAccueil)  # Détruit la fenêtre d'accueil
     fenetrePrincipale()  # ouvre le fenêtre de résultat
 
 
@@ -85,7 +86,6 @@ def barreMenu(fenetre):
 # Ajoute les onglets à la fenêtre
 def ongletsCSV(fenetre, listeNomFichiers):
     tabControl = ttk.Notebook(fenetre)
-    # tabControl.grid(row=1, column=0, columnspan=50, rowspan=50, sticky='NSEW')
     tabControl.pack()
 
     nomOnglet = []  # Liste des noms d'onglets
@@ -94,21 +94,47 @@ def ongletsCSV(fenetre, listeNomFichiers):
     for j in range(len(listeNomFichiers)):
         nomOnglet.append("onglet_" + str(j))  # Crée un nom en boucle
         nomOnglet[j] = listeNomFichiers[j]  # l'onglet ercoit le nom du fichier
-        nomOnglet[j] = ttk.Frame(tabControl)  # Permet de créer l'espace pour afficher l'onglet
+        nomOnglet[j] = ttk.Frame(tabControl, width=500, height=300)  # Permet de créer l'espace pour afficher l'onglet
 
-        remplirOnglet(nomOnglet[j], listeNomFichiers[j])  # Fonction qui permet de remplir l'onglet
+        # Création du canvas qui permet d'avoir la barre déroulante et afficher les lignes du CSV avec checkboxes
+        canvas = Canvas(nomOnglet[j], width=400, height=300)
+        scroll = Scrollbar(nomOnglet[j], command=canvas.yview)
+
+        canvas.config(yscrollcommand=scroll.set, scrollregion=(0, 0, 100, 5000))
+        canvas.pack(side=LEFT, fill=BOTH, expand=True)
+        scroll.pack(side=LEFT, fill=Y)
+
+        frame = Frame(canvas, width=500, height=300)
+
+        remplirOnglet(frame, listeNomFichiers[j])  # Fonction qui permet de remplir l'onglet
+
+        canvas.create_window(175, 100, window=frame)
+
+        # barreDeroulante(nomOnglet[j])  # Ajoute une barre déroulante dans l'onglet
+
+        nomOnglet[j].pack_propagate(False)  # Evite l'aggrandissmenet dynamique
 
         tabControl.add(nomOnglet[j], text=listeNomFichiers[j])  # Ajoute l'onglet et le montre
 
 
 # Fonction qui permet d'afficher les boutons de selection
 def afficheBouton(fenetre):
+    # Coche toutes les checkboxes
+    def cocheTout(boxs=box):
+        for i in boxs:
+            i.select()
+
+    # Décoche toutes les checkboxes
+    def decocheTout(boxs=box):
+        for i in boxs:
+            i.deselect()
+
     # Check all checkboxes
-    boutonCheckAll = Button(fenetre, text="Check All", command="", width=15, height=5)
+    boutonCheckAll = Button(fenetre, text="Check All", command=cocheTout, width=15, height=5)
     boutonCheckAll.pack(side=LEFT, padx=5, pady=1)
 
     # Uncheck all checkboxes
-    boutonUnchekAll = Button(fenetre, text="Uncheck All", command="", width=15, height=5)
+    boutonUnchekAll = Button(fenetre, text="Uncheck All", command=decocheTout, width=15, height=5)
     boutonUnchekAll.pack(side=LEFT, padx=5, pady=1)
 
     # Calcul avec le graphe valué
@@ -119,45 +145,32 @@ def afficheBouton(fenetre):
     boutonCooccurrence = Button(fenetre, text="Coocurrence", command=fenetreGrpahe, width=15, height=5)
     boutonCooccurrence.pack(side=RIGHT, padx=5, pady=1)
 
-#Fonction qui remplis les onglets
-def remplirOnglet(nomOnglet, nomFichier):
+
+# Fonction qui remplis les onglets
+def remplirOnglet(canvas, nomFichier):
+    global box
     with open(nomFichier, 'r', newline="") as csvfile:
         reader = csv.reader(csvfile, delimiter=";")
 
         ligne = 5  # Placement des lignes
-        checkbox = []  # Noms des labels
+        cases = []  # Noms des labels
+        box = []  # Les boxes
         titre = 0
+
         for i in reader:
             if titre == 0:
                 titre += 1
             else:
-                checkbox.append("Label_" + str(i[0]))
+                cases.append("Label_" + str(i[0]))
 
                 # lecture des lignes du csv
-                checkbox[0] = IntVar()
-                checkbox[0] = Checkbutton(nomOnglet, text=(str(i[1])))
-                # labels[0].grid(column=3, row=ligne)
-                checkbox[0].pack(anchor=W)
+                cases[0] = IntVar()
+                cases[0] = Checkbutton(canvas, text=(str(i[1])))
+                cases[0].select()  # Coche la case
+                cases[0].pack(anchor=W)
 
+                box.append(cases[0])  # Ajoute les checkboxes
                 ligne += 1  # Ajoute 1 pour passer à la ligne suivante
-
-            # Fonction pour afficher la barre déroulante
-
-
-# def barreDeroulante(fenetre):
-#     scrollbar = Scrollbar(fenetre)
-#     scrollbar.pack(side=LEFT, fill=Y)
-#
-#     scrollbar.config(command=resultat.yview)
-#
-
-# Création des checkboxes
-def checkBoxes():
-    # Création des checkboxes
-    var1 = IntVar()
-    Checkbutton(fenPrincipale, text="male", variable=var1).grid(row=0, sticky=W)
-    var2 = IntVar()
-    Checkbutton(fenPrincipale, text="female", variable=var2).grid(row=1, sticky=W)
 
 
 # Permet d'afficher la ColorDialog
@@ -209,9 +222,9 @@ def fenetrePrincipale():
 
     barreMenu(fenPrincipale)  # Appel de la fonction qui affiche la barre de menu
 
-    ongletsCSV(fenPrincipale, listeNomFichiers)  # Appel dela fonction pour mettre des onglets par fichier
+    ongletsCSV(fenPrincipale, listeNomFichiers)  # Appel de la fonction pour mettre des onglets par fichier
 
-    afficheBouton(fenPrincipale)  # Affiche les boutons pour le type d'algo a utiliser et le check des checkboxes
+    afficheBouton(fenPrincipale)  # Affiche les boutons pour le type d'algo à utiliser et le check des checkboxes
 
     fenPrincipale.mainloop()
 
