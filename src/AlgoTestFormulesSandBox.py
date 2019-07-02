@@ -51,7 +51,7 @@ f12 = "[Zeus # Brontôn] + [Zeus # Karpodotês] + [Zeus # Eucharistos]"
 
 # Liste des attestations
 global attestations
-attestations = [f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16]
+attestations = [f1]
 # """Liste des Dieux et Mots"""
 
 """Lecture du CSV et stockage dans une liste """
@@ -171,8 +171,8 @@ def coocurenceListe(liste):  # Permet de calculer la Coocurence des formules
     weightEdges = nomsNombres(arc)  # Appel de la fonction qui transforme les couples en Sources Targets
 
     """ Calcul pour savoir le nombre d'apparition du nom"""
-    # nombre total d'apparition
-    apparait = {}
+
+    apparait = {}  # nombre total d'apparition
 
     for elem, val in poids.items():  # Regarde dans le Dictionnaire
         for nom, nombre in val.items():  # Ragarde dans le dictionnaire du dictionnaire
@@ -321,68 +321,28 @@ def edges(arc):  # faire une option de nommage du fichier
             writer.writerow((cle[0], cle[1], "Undirected", id, "", element))
             id += 1
 
+"""Fonction qui crée un csv avec le nom een source et target"""
 
-# def writeCSVFormule(listeAttestations):  # Ecrit le CSV des formules de tests
-#     with open('Formules.csv', 'w', newline='', encoding='windows-1252') as csvfile:
-#         writer = csv.writer(csvfile, delimiter=';')
-#         writer.writerow(("Id", "Formule"))  # Ecriture en-tête du fichier
-#
-#         id = 0  # Clé pour l'id
-#         for formule in listeAttestations:
-#             writer.writerow((id, formule))
-#             id += 1
+def nomSourceTarget(noeud, apparait, arc):
+    with open('SourceTarget.csv', 'w', newline='', encoding='windows-1252') as csvfile:
+        writer = csv.writer(csvfile, delimiter=";")
+        writer.writerow(("Source", "Target", "Type", "Id", "libelle", "Weight"))
 
+        tempCle = []
+        idNoms = []
 
-"""Fonction qui affiche le graphe"""
+        for cle, element in apparait.items():  # Récupération dans les listes
+            tempCle.append(cle)  # Label
 
-# def drawGraph(noeud, apparait, arc):
-#     G = nx.Graph()
-#
-#     tempLabel = []
-#     tempPoids = []
-#
-#     listeNodes = []
-#     listeEdges = []
-#
-#     for cle, element in apparait.items():  # Récupération dans les listes
-#         tempLabel.append(cle)  # Label
-#         tempPoids.append(element)  # Poids
-
-
-"""Traite les symboles"""
-
-
-def traiteSymbole(formule):
-    for carac in formule:  # Regarde par quoi est séparé les noms
-
-        # Faire la même avec l'appel du dictionnaire
-        if carac == "/":
-            print("Jusxtaposé")
-        elif carac == "(":
-            print("début de distributivité")
-        elif carac == ")":
-            print("Fin de distributivité")
-        elif carac == "#":
-            print("qualifie")
-        elif carac == "[":
-            print("Début ensemble")
-        elif carac == "]":
-            print("Fin ensemble")
-        elif carac == "+":
-            print("coordination")
-        elif carac == "=":
-            print("equivalence")
-        else:
-            print(carac)
-
-
-def traiteFormule(formule):
-    """Faire la distributivité"""
+        for i in tempCle:  # Associe au nom la clé du dictionnaire
+            for cle, element in noms.items():
+                if element == i:
+                    idNoms.append(cle)
 
 
 if __name__ == "__main__":
     # print(coocurenceArc(f12))
-    writeCSVFormule(attestations)
-    # coocurenceListe(attestations)  # OK Done !
+    # writeCSVFormule(attestations)
+    coocurenceListe(attestations)  # OK Done !
     # print("")
     # traiteFormule(f1)
