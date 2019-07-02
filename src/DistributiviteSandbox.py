@@ -8,21 +8,21 @@
 cas1 = "([a#b]+[[c#d]/[e#f]])#[g#h]"  # OK
 # => [a#b]#[g#h]+[[c#d]/[e#f]]#[g#h]
 
-cas5 = "Apollôn#(Puthios+Kedrieus)"  # OK
+cas2 = "Apollôn#(Puthios+Kedrieus)"  # OK
 
-cas6 = "(Zeus+Hêra)#Sôtêr"  # OK
+cas3 = "(Zeus+Hêra)#Sôtêr"  # OK
 
-cas2 = "Apollôn # (Puthios + Kedrieus)"  # OK
+cas4 = "Apollôn # (Puthios + Kedrieus)"  # OK
 
-cas3 = "[Theos#Sôtêr]#(Artemis+Apollôn)"  # OK
+cas5 = "[Theos#Sôtêr]#(Artemis+Apollôn)"  # OK
 
-cas4 = "[[Zeus/Hêlios]/[Megas#Sarapis]]+[Sunnaoi#Theoi]"  # OK
+cas6 = "[[Zeus/Hêlios]/[Megas#Sarapis]]+[Sunnaoi#Theoi]"  # OK
 
-cas7 = "(([Isis#Sôtêr]/Astartê / [Aphroditê # Euploia]) # Epêkoos) + [Erôs / Harpokratês / Apollôn]"  # Blap les /
+cas7 = "([Isis#Sôtêr]/Astartê / [Aphroditê # Euploia]) # Epêkoos + [Erôs / Harpokratês / Apollôn]"  # OK
 
-cas8 = "[dieux # saints] # de Byblos"  # Double entrée
+cas8 = "[dieux # saints] # de Byblos"  # OK
 
-cas9 = "Ashtart # [dans le sanctuaire # [du dieu # de Hamon]]"  # Poser la question de la distribution
+cas9 = "Ashtart # [dans le sanctuaire # [du dieu # de Hamon]]"  # Poser la question de la distribution Nope / OK ???
 
 cas10 = "[Apollôn # Puthios] + [Apollôn # Kedrieus]"  # OK
 
@@ -30,11 +30,12 @@ cas11 = "[Ammôn=Chnoubis]+[Hêra=Satis]+[Hestia=Anoukis]+[Dionusos=Petempamentis]
 
 cas12 = "([Kurios # Zeus] + Hêra) # Epêkoos"  # OK
 
-cas13 = [["(", "[a#b]", "+", "[[c#d]/[e#f]]", ")", "#", "[g#h]"]]
+cas13 = "(à mes dames # ([[à la déesse # puissante] # Isis] / [la déesse # Ashtart])) + [aux dieux # qui]"
+# Cas 13 Explose et j'arrive pas à lire ...
 
-listeCas = [cas7, cas8, cas9]  # Fonctionne pas
+listeCas = [cas13]  # Fonctionne pas
 
-listeCas2 = [cas1, cas5, cas2, cas6, cas3, cas4, cas10, cas11, cas12]  # Fonctionne
+listeCas2 = [cas1, cas2, cas3, cas4, cas5, cas6, cas7, cas8, cas9, cas10, cas11, cas12]  # Fonctionne
 
 """ Liste des signes pour les formules """
 
@@ -135,9 +136,10 @@ def splitPropre(listeCas):
             # print(pileB)
 
             res = allInOne(pileB)
-            dicoResultat[dicoResultatCle] = distributiviteCrochet(
-                res)  # Applique la distibutivité si il y en a a la liste de formule
-            dicoResultatCle += 1
+
+            # Applique la distibutivité si il y en a à la liste de formule
+            dicoResultat[dicoResultatCle] = distributiviteCrochet(res)
+            dicoResultatCle += 1  # incrémente la clé du dictionnaire
 
             print("Dicoresultat yay")
             print(dicoResultat)
@@ -223,26 +225,20 @@ def supprimeEspace(listeCas):
 
 
 def distributiviteCrochet(listeFormule):
-    dist = False
-    sansDiese = []
+    dist = False  # Garde pour lancer la séquence
 
-    print("ListeFormule")
-    print(listeFormule)
+    # print("ListeFormule")
+    # print(listeFormule)
 
     for i in listeFormule:  # Regarde si un # est dans l'expression pour la distributivité
-
-        print("Je suis i")
-        print(i)
-
         for j in i:
             if j == "#":
                 dist = True
 
-    if dist is True:
-        listeFormulesCrochets = listeFormule
+    if dist is True:  # Si la garde est levée
 
-        print("Liste Formule Crochets")
-        print(listeFormulesCrochets)
+        print("Liste Formule")
+        print(listeFormule)
 
         # Pile pour la gestion des  parentheses
         pileA = []
@@ -250,112 +246,117 @@ def distributiviteCrochet(listeFormule):
         # Pile pour la gestion des  #
         pileC = []
         pileD = []
+        pileE = []
+
         # Resultat de la distributivité
         res = []
 
-        for formule in listeFormulesCrochets:  # Récupération de l'expression dans la parenthèse
+        garde = False  # Garde pour lancer la séquence
+
+        for formule in listeFormule:  # Récupération de l'expression dans la parenthèse
 
             print("fomuleaasdasd")
             print(formule)
 
-            for index in range(len(formule)):
+            for i in formule:  # Regarde si il y a des parenthèses avant de lancer la séuence suivante
+                if i == "(":
+                    garde = True  # Lève la garde
+                    break
 
-                # print("l'index dezd ")
-                # print(formule[index])
+            if garde is True:  # Si la garde est levée lance la sequence
+                for index in range(len(formule)):
+                    compt = index
+                    if formule[index] == "(":
+                        while formule[compt] != ")":
+                            pileA.append(formule[compt])
+                            compt += 1
 
-                compt = index
-                if formule[index] == "(":
-                    while formule[compt - 1] != ")":
-                        pileA.append(formule[compt])
-                        compt += 1
+                        print("pileA njnjnjnjn")
+                        print(pileA)
 
-                    # print("rrzerzerzer")
-                    # print(formule[index])
+                        print("len formule")
+                        print(len(formule))
 
-                elif formule[index] == ("#" or "="):  # Ajoute a # b
-                    if (formule[index - 1] not in signes.values()) and (formule[index + 1] not in signes.values()):
-                        pileD.append(formule[index - 1])
-                        pileD.append(formule[index])
-                        pileD.append(formule[index + 1])
-                    elif formule[index - 1] not in signes.values():  # Ajoute a #
-                        pileC.append(formule[index - 1])
-                        pileC.append(formule[index])
-                    elif formule[index + 1] not in signes.values():  # Ajoute # b
-                        pileC.append(formule[index])
-                        pileC.append(formule[index + 1])
+                    elif formule[index] == ("#" or "=" or "/" or "+"):  # Ajoute a # b
+                        if (formule[index - 1] not in signes.values()) and (formule[index + 1] not in signes.values()):
+                            pileD.append(formule[index - 1])
+                            pileD.append(formule[index])
+                            pileD.append(formule[index + 1])
+                        elif formule[index - 1] not in signes.values():  # Ajoute a #
+                            pileC.append(formule[index - 1])
+                            pileC.append(formule[index])
+                        elif formule[index + 1] not in signes.values():  # Ajoute # b
+                            pileC.append(formule[index])
+                            pileC.append(formule[index + 1])
+                    else:
+                        pileE.append(formule[index])  # Récupère l'expression
 
-            if len(pileA) != 0:  # Supprime la première parenthèse
-                del pileA[0]
+                print("PileE")
+                print(pileE)
 
-            pileB.append(pileA)  # Rajoute les élements a la pileB
-            pileA = []  # Réinitialise la pila A
+                if len(pileA) != 0:  # Supprime la première parenthèse
+                    del pileA[0]
 
-            for i in formule:
-                for k in range(len(pileB)):  # Regarde l'expression stocké qui était dans la parenthèse
-                    for index in range(len(formule) - 1):
-                        # Si la formule contient )# distribue de cette façon
-                        if formule[index] + formule[index + 1] == ")#":
-                            for j in pileB[k]:
-                                if j not in signes.values():  # Regarde si le caractère est spécial si non l'ajoute
-                                    res.append("[")  # Ajoute les crochets pour marqeur l'ensemble
-                                    res.append(j)
-                                    for k in pileC:  # Rajoute les elements stockés
-                                        res.append(k)
-                                    res.append("]")  # Ajoute les crochets pour marquer l'ensemble
-                                elif j == "+" or j == "=":  # Ajoute l'opérateur
-                                    res.append(j)
+                print("pileA resresrse")
+                print(pileA)
 
-                        # Si la formule contient #( distribue de cette façon
-                        elif formule[index] + formule[index + 1] == "#(":
-                            for j in pileB[k]:
-                                if j not in signes.values():  # Regarde si le caractère est spécial si non l'ajoute
-                                    res.append("[")  # Ajoute les crochets pour marquer l'ensemble
-                                    for k in pileC:  # Rajoute les elements stockés
-                                        res.append(k)
-                                    res.append(j)
-                                    res.append("]")  # Ajoute les crochets pour marquer l'ensemble
-                                elif j == "+" or j == "=":  # Ajoute l'opérateur
-                                    res.append(j)
+                print("pileB resresrse")
+                print(pileB)
 
-                        else:
-                            for l in pileD:  # Ajoute la formule sans parenthèses
-                                res.append(l)
-                        # print("dicoResultatCle 2")
-                        # print(dicoResultatCle)
-                    #
-                    # dicoResultat[dicoResultatCle] = res  # Ajoute au dictionnaire
-                    # dicoResultatCle += 1  # Incrémente la clé
+                print("pileC resresrse")
+                print(pileC)
 
-                    # print("dicoResultatCle 3")
-                    # print(dicoResultatCle)
+                print("pileD resresrse")
+                print(pileD)
 
-                    # Réinitialise les variables
-                    pileB = []
-                    pileC = []
-                    pileD = []
-                    # res = []
+                pileB.append(pileA)  # Rajoute les élements a la pileB
+                pileA = []  # Réinitialise la pile A
 
-                # print("Dico Result if ")
-                # print(dicoResultat)
+                for i in formule:
+                    for k in range(len(pileB)):  # Regarde l'expression stocké qui était dans la parenthèse
+                        for index in range(len(formule) - 1):
+                            # Si la formule contient )# distribue de cette façon
+                            if formule[index] + formule[index + 1] == ")#":
+                                for j in pileB[k]:
+                                    if j not in signes.values():  # Regarde si le caractère est spécial si non l'ajoute
+                                        res.append("[")  # Ajoute les crochets pour marqeur l'ensemble
+                                        res.append(j)
+                                        for k in pileC:  # Rajoute les elements stockés
+                                            res.append(k)
+                                        res.append("]")  # Ajoute les crochets pour marquer l'ensemble
+                                    elif j == "+" or j == "=" or j == "/" or "+":  # Ajoute l'opérateur
+                                        res.append(j)
 
-                return res
+                            # Si la formule contient #( distribue de cette façon
+                            elif formule[index] + formule[index + 1] == "#(":
+                                for j in pileB[k]:
+                                    if j not in signes.values():  # Regarde si le caractère est spécial si non l'ajoute
+                                        res.append("[")  # Ajoute les crochets pour marquer l'ensemble
+                                        for k in pileC:  # Rajoute les elements stockés
+                                            res.append(k)
+                                        res.append(j)
+                                        res.append("]")  # Ajoute les crochets pour marquer l'ensemble
+                                    elif j == "+" or j == "=" or j == "/" or "+":  # Ajoute l'opérateur
+                                        res.append(j)
+
+                            else:
+                                for l in pileD:  # Ajoute la formule sans parenthèses
+                                    res.append(l)
+
+                        # Réinitialise les variables
+                        pileB = []
+                        pileC = []
+                        pileD = []
+
+                    for i in pileE:  # Regarde dans la liste les élement qui manquent et les rajoute
+                        if i not in res and i != ")":
+                            res.append(i)
+
+                    return res
+            else:
+                return listeFormule
     else:
-        print("coucou")
         return listeFormule
-        # dicoResultat[dicoResultatCle] = listeFormule  # Ajoute l'expression au dictionnaire
-        #
-        # print("dico else adazdad")
-        # print(dicoResultat[dicoResultatCle])
-        #
-        # dicoResultatCle += 1  # Incrémente la clé
-        #
-        # print("dicoResultatCle")
-        # print(dicoResultatCle)
-        #
-        # print("Dico Result else")
-        # print(dicoResultat)
-        # return res
-    # return dicoResultat
 
 
 def distributiviteParentheses(listeFormule):
@@ -520,8 +521,8 @@ def allInOne(listedeListe):
         indice = 0
         pos = 0
 
-        print("ElemSep")
-        print(elemSep)
+        # print("ElemSep")
+        # print(elemSep)
 
         while indice < len(enListe):  # Tant que indice est inférieur a la longueur de la liste de l'expression
             if enListe[indice] == "[" and enListe[indice + 1] != "[":  # Si pas 2 crochets consécutifs
@@ -530,24 +531,18 @@ def allInOne(listedeListe):
                     re += 1
                 nette.append(elemSep[pos])  # Ajoute l'élément de la liste a la liste intermédiaire
 
-                # print("liste nette pos")
-                # print(nette)
-
                 pos += 1  # Avance la position
                 indice = re
+
             else:
-
-                # print("enListe[indice]")
-                # print(enListe[indice])
-
                 if enListe[indice] == "]" and enListe[indice - 1] != "]":  # Si 2 crochets consécutifs avance l'indice
                     indice += 1
                 else:
                     nette.append(enListe[indice])  # Sinon ajoute à la liste
                     indice += 1
 
-        print("nette")
-        print(nette)
+        # print("nette")
+        # print(nette)
 
         for i in range(len(nette)):  # pour la longeur de la liste
             if nette[i] == "[" and nette[i + 1] != "[":  # Si pas 2 crochets consécutifs
@@ -558,8 +553,8 @@ def allInOne(listedeListe):
                     re += 1
                 final.append(trigger)  # Ajoute la la liste
 
-        print("final")
-        print(final)
+        # print("final")
+        # print(final)
 
         indice = 0
         pos = 0
@@ -580,8 +575,8 @@ def allInOne(listedeListe):
                     finale.append(nette[indice])  # Ajoute l'element à la liste
                     indice += 1
 
-        print("finale")
-        print(finale)
+        # print("finale")
+        # print(finale)
 
         lastList.append(finale)
 
@@ -589,12 +584,12 @@ def allInOne(listedeListe):
 
     else:
 
-        print("listedeliste")
-        print(listedeListe)
+        # print("listedeliste")
+        # print(listedeListe)
 
         return listedeListe
 
 
-# separationCrochets(listeCas)
-splitPropre(listeCas)
-# allInOne(cas1)
+if __name__ == "__main__":
+    splitPropre(listeCas)
+    # allInOne(cas1)
