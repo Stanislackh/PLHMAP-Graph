@@ -2,56 +2,106 @@
 # Created by Slackh
 # Github : https://github.com/Stanislackh
 
-"""Fichier test de GephiStreamer"""
+"""Prise en main de NetworkX tests en tout genre"""
 
+import csv
+import AlgoTestFormulesSandBox
+from random import randrange
 import networkx as nx
-import networkx.drawing
+from networkx.algorithms.community import greedy_modularity_communities
 import matplotlib.pyplot as plt
 
-"""Exemple ok"""
-# G = nx.petersen_graph()
-# plt.subplot(121)
-#
-# nx.draw(G, with_labels=True, font_weight='bold')
-# plt.subplot(122)
-#
-# nx.draw_shell(G, nlist=[range(5, 10), range(5)], with_labels=True, font_weight='bold')
-# plt.savefig("blap.png")
-# plt.show()
+"""fonction qui permet de récupérer les arcs et les noeuds lire CSV on verra pour l'intégrer a l'algo"""
 
-# G = nx.Graph()
-#
-# listNodes = [1, 2, 3, 4, 5]
-# listEdges = [(1, 2), (2, 3), (1, 5), (1, 4), (4, 5), (2, 4)]
-#
-# G.add_nodes_from(listNodes)
-# G.add_edges_from(listEdges)
-#
-# print(G.number_of_nodes())
-# print(G.number_of_edges())
-#
-# nx.draw(G, with_labels=True, font_weight='bold')
-# plt.show()
 
-from gephistreamer import graph
-from gephistreamer import streamer
+def lireNoeudCSV(nomFichier):
+    global Noeud
+    global nomNoeud
+    global idNoeud
+    global poids1Noeud
+    global poids2Noeud
 
-stream = streamer.Streamer(streamer.GephiWS(hostname="localhost", port=8080, workspace="workspace1"))
+    with open(nomFichier, 'r', newline="") as csvfile:
+        reader = csv.reader(csvfile, delimiter=";")
 
-# Create a node with a custom_property
-node_a = graph.Node("A",custom_property=1)
+        Noeud = []
+        nomNoeud = []
+        idNoeud = []
+        poids1Noeud = []
+        poids2Noeud = []
 
-# Create a node and then add the custom_property
-node_b = graph.Node("B")
-node_b.property['custom_property']=2
+        titre = 0
 
-# Add the node to the stream
-# you can also do it one by one or via a list
-# l = [node_a,node_b]
-# stream.add_node(*l)
-stream.add_node(node_a,node_b)
+        for i in reader:
+            if titre == 0:
+                titre += 1
+            else:
+                Noeud.append(i[0])
+                idNoeud.append(i[1])
+                nomNoeud.append(i[2])
+                poids1Noeud.append(i[3])
+                poids2Noeud.append(i[4])
 
-# Create edge
-# You can also use the id of the node : graph.Edge("A","B",custom_property="hello")
-edge_ab = graph.Edge(node_a,node_b,custom_property="hello")
-stream.add_edge(edge_ab)
+
+def lireArcCSV(nomFichier):
+    global tupleSourceTarget
+    global typeArc
+    global idArc
+    global poidsArc
+
+    with open(nomFichier, 'r', newline="") as csvfile:
+        reader = csv.reader(csvfile, delimiter=";")
+
+        tupleSourceTarget = []
+        typeArc = []
+        idArc = []
+        poidsArc = []
+
+        titre = 0
+
+        for i in reader:
+            if titre == 0:
+                titre += 1
+            else:
+                tupleSourceTarget.append((i[0], i[1]))
+                typeArc.append(i[2])
+                idArc.append(i[3])
+                poidsArc.append(i[5])
+
+
+def random_color():  # Génère une couleur aléatoire en 8 bit
+
+    color = []
+    for i in range(3):
+        r = randrange(256)
+        color.append(r)
+
+    return color
+
+
+def dessinerGraphe():
+    G = nx.Graph()  # Création du graphe
+
+    cpt = 0
+    for arc in tupleSourceTarget:
+        G.add_edge(arc[0], arc[1])
+        cpt += 1
+
+    p = list(greedy_modularity_communities(G))
+    sorted(p)
+    colorCommunity = []
+    for i in p:
+        r = random_color()
+        colorCommunity.append((i, r))  # Communauté et sa couleur associée
+
+    print(colorCommunity)
+    nx.draw_networkx(G, node_size=20, with_labels=True)
+    plt.show()
+    plt.savefig("Exemple1.png")
+
+
+if __name__ == "__main__":
+    lireNoeudCSV("Nodes.csv")
+    print("")
+    lireArcCSV("Edges.csv")
+    dessinerGraphe()

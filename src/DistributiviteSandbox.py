@@ -23,7 +23,7 @@ cas7 = "([Isis#Sôtêr]/Astartê / [Aphroditê # Euploia]) # Epêkoos + [Erôs / Harpo
 
 cas8 = "[dieux # saints] # de Byblos"  # OK
 
-cas9 = "Ashtart # [dans le sanctuaire # [du dieu # de Hamon]]"  # Poser la question de la distribution Nope / OK ???
+cas9 = "Ashtart # [dans le sanctuaire # [du dieu # de Hamon]]"  # OK
 
 cas10 = "[Apollôn # Puthios] + [Apollôn # Kedrieus]"  # OK
 
@@ -34,9 +34,9 @@ cas12 = "([Kurios # Zeus] + Hêra) # Epêkoos"  # OK
 cas13 = "à mes dames # ([[à la déesse # puissante] # Isis] / [la déesse # Ashtart]) + [aux dieux # qui]"
 # Cas 13 Explose et j'arrive pas à lire ...
 
-listeCas = [cas13]  # Fonctionne pas
+listeCas2 = [cas9]  # Fonctionne pas
 
-listeCas2 = [cas1, cas2, cas3, cas4, cas5, cas6, cas7, cas8, cas9, cas10, cas11, cas12]  # Fonctionne
+listeCas = [cas1, cas2, cas3, cas4, cas5, cas6, cas7, cas8, cas9, cas10, cas11, cas12, cas13]  # Fonctionne
 
 """ Liste des signes pour les formules """
 
@@ -142,10 +142,22 @@ def splitPropre(listeCas):
             dicoResultat[dicoResultatCle] = distributiviteCrochet(res)
             dicoResultatCle += 1  # incrémente la clé du dictionnaire
 
-            print("Dicoresultat yay")
-            for i, j in dicoResultat.items():
-                print(i, j)
-                print("")
+            dicoReecrit = {}
+            cle = 0
+
+            for objet in dicoResultat.values():
+                trigger = ""
+                for i in objet:
+                    for j in i:
+                        trigger += j
+
+                dicoReecrit[cle] = trigger
+                cle += 1
+
+        print("dicoréécrit Version lisible ")
+        for i, j in dicoReecrit.items():
+            print(i, j)
+            print("")
 
 
 """Regarde si les nombres de crochets et parenthèses ouvrante fermante sont identiques"""
