@@ -4,6 +4,7 @@
 
 
 """faire de la distributivité"""
+from itertools import combinations
 
 cas1 = "([a#b]+[[c#d]/[e#f]])#[g#h]"  # OK
 # => [a#b]#[g#h]+[[c#d]/[e#f]]#[g#h]
@@ -30,7 +31,7 @@ cas11 = "[Ammôn=Chnoubis]+[Hêra=Satis]+[Hestia=Anoukis]+[Dionusos=Petempamentis]
 
 cas12 = "([Kurios # Zeus] + Hêra) # Epêkoos"  # OK
 
-cas13 = "(à mes dames # ([[à la déesse # puissante] # Isis] / [la déesse # Ashtart])) + [aux dieux # qui]"
+cas13 = "à mes dames # ([[à la déesse # puissante] # Isis] / [la déesse # Ashtart]) + [aux dieux # qui]"
 # Cas 13 Explose et j'arrive pas à lire ...
 
 listeCas = [cas13]  # Fonctionne pas
@@ -142,7 +143,9 @@ def splitPropre(listeCas):
             dicoResultatCle += 1  # incrémente la clé du dictionnaire
 
             print("Dicoresultat yay")
-            print(dicoResultat)
+            for i, j in dicoResultat.items():
+                print(i, j)
+                print("")
 
 
 """Regarde si les nombres de crochets et parenthèses ouvrante fermante sont identiques"""
@@ -273,9 +276,6 @@ def distributiviteCrochet(listeFormule):
 
                         print("pileA njnjnjnjn")
                         print(pileA)
-
-                        print("len formule")
-                        print(len(formule))
 
                     elif formule[index] == ("#" or "=" or "/" or "+"):  # Ajoute a # b
                         if (formule[index - 1] not in signes.values()) and (formule[index + 1] not in signes.values()):
@@ -444,41 +444,6 @@ def distributiviteParentheses(listeFormule):
     return dicoResultat
 
 
-#
-# def separationCrochets(listeFormule):
-#     listeIntermediareCrochets = []
-#     listePropreCrochets = []
-#     indice = []
-#
-#     for formule in listeFormule:  # Lit la formule
-#         for index in range(len(formule)):
-#             compt = index
-#             if formule[index] == "[":  # Si la la valeur à l'index indiqué est [ rentre dans la boucle
-#                 trigger = ""  # Initaialise la variable de stockage
-#                 while formule[compt] != "]":  # Tant que l'on rencontre pas ] stocke dans la variable
-#                     trigger += formule[compt]  # Récupère la valeur
-#                     indice.append(compt)  # Récupère l'indice
-#                     compt += 1
-#                 trigger += formule[compt]  # Ajoute le dernier élemnent a la sortie de boucle
-#                 # print(trigger)
-#                 indice.append(compt)  # Ajoute le dernier indice a la sortie de boucle
-#
-#                 listeIntermediareCrochets.append(trigger)
-#             trigger = ""  # Réinitialise la variable de stockage
-#             listeIntermediareCrochets.append(formule[index])
-#
-#             print("liste Intermédiaire Crochet")
-#             print(listeIntermediareCrochets)
-#
-#     for i in indice:
-#         del listeIntermediareCrochets[indice[0] + 1]  # enlève les caractères qui ont été concaténées
-#     listePropreCrochets.append(listeIntermediareCrochets)
-#
-#     print("Liste propre")
-#     print(listePropreCrochets)
-#     return listePropreCrochets
-
-
 def allInOne(listedeListe):
     suite = False  # Permet de faire le traitement des crochets
     enListe = []  # Liste vide
@@ -504,6 +469,9 @@ def allInOne(listedeListe):
         cpt = 0
         garde = False
 
+        print("listedeListe")
+        print(listedeListe)
+
         for indice in range(len(enListe)):  # Pour la longueur de l'expression
             if element != "":  # si element est différente de ""
                 elemSep.append(element)  # Ajoute a la liste des elements entre crochets en 1 element
@@ -516,18 +484,27 @@ def allInOne(listedeListe):
                 while enListe[cpt] != "]":  # Tant que l'element de la liste est différent de ]
                     element += enListe[cpt + 1]
                     cpt += 1
+
             cpt = indice  # donne la valeur de l'indice a cpt pour pouvoir continuer a l'indice arrêté
+
+        # print("SepElem")
+        # print(elemSep)
 
         indice = 0
         pos = 0
 
-        # print("ElemSep")
-        # print(elemSep)
+        co = 0
+        cf = 0
+        blap = True
 
         while indice < len(enListe):  # Tant que indice est inférieur a la longueur de la liste de l'expression
+
+            if enListe[indice] == "[":
+                co += 1
+
             if enListe[indice] == "[" and enListe[indice + 1] != "[":  # Si pas 2 crochets consécutifs
                 re = indice
-                while enListe[re] != "]":  # Tant que l'indice - 1 est différent de ] avance l'indice
+                while enListe[re] != "]":  # Tant que l'indice est différent de ] avance l'indice
                     re += 1
                 nette.append(elemSep[pos])  # Ajoute l'élément de la liste a la liste intermédiaire
 
@@ -535,20 +512,35 @@ def allInOne(listedeListe):
                 indice = re
 
             else:
-                if enListe[indice] == "]" and enListe[indice - 1] != "]":  # Si 2 crochets consécutifs avance l'indice
+                if enListe[indice] == "]" and enListe[indice - 1] == "]":
+                    nette.append(enListe[indice])  # Sinon ajoute à la liste
                     indice += 1
+                    cf -= 1
+
+                elif enListe[indice] == "]" and enListe[indice - 1] != "]":  # Si 2 crochets consécutifs avance l'indice
+                    cf += 1
+                    if co == cf and blap is True:
+                        nette.append(enListe[indice])
+                        blap = False
+                        indice += 1
+                    else:
+                        indice += 1
                 else:
                     nette.append(enListe[indice])  # Sinon ajoute à la liste
                     indice += 1
 
-        # print("nette")
-        # print(nette)
+        print("nette")
+        print(nette)
 
         for i in range(len(nette)):  # pour la longeur de la liste
             if nette[i] == "[" and nette[i + 1] != "[":  # Si pas 2 crochets consécutifs
                 re = i
                 trigger = ""
                 while nette[re - 1] != "]":  # Tant que l'element est différent de ] avance l'indice
+
+                    # print("trigger")
+                    # print(trigger)
+
                     trigger += nette[re]
                     re += 1
                 final.append(trigger)  # Ajoute la la liste
