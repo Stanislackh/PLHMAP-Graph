@@ -13,7 +13,7 @@ objectifs:
 import DistributiviteSandbox
 
 formuleBrutString = "Apollôn#([Dêlios+Kalumnas-Medeôn]/Zeus)"
-formuleBrutList2 = ['Apollôn', '#', '(', '[', 'Dêlios', '+', 'Kalumnas-Medeôn', ']', '/', 'Zeus', ')']  # Ok
+formuleBrutList3 = ['Apollôn', '#', '(', '[', 'Dêlios', '+', 'Kalumnas-Medeôn', ']', '/', 'Zeus', ')']  # Ok
 
 formuleDeveloppeeString = "[Apollôn#[Dêlios+Kalumnas-Medeôn]]/[Apollôn#Zeus]"
 formuleDeveloppeeList = ['[', 'Apollôn', '#', '[', 'Dêlios', '+', 'Kalumnas-Medeôn', ']', '/', '[', 'Apollôn', '#',
@@ -21,7 +21,9 @@ formuleDeveloppeeList = ['[', 'Apollôn', '#', '[', 'Dêlios', '+', 'Kalumnas-Mede
 
 formuleBrutList = ['Apollôn', '#', '(', "Puthios", '+', "Kedrieus", ')']  # OK si pas de -1
 
-formuleBrutList3 = ['(', '[', "Kurios", '#', 'Zeus', ']', '+', "Hêra", ')', '#', "Epêkoos"]
+formuleBrutList4 = ['(', '[', "Kurios", '#', 'Zeus', ']', '+', "Hêra", ')', '#', "Epêkoos"]
+
+formuleBrutList2 = ['[', 'Theos', '#', 'Soter', ']', '#', '(', 'Artemis', '+', 'Apollon', ')']
 
 noms = {
     1: "Zeus",
@@ -124,31 +126,24 @@ def comparerFormule(formuleBrut, formuleDeveloppee, table):
                 paire.append(formuleBrutList[indice], )  # Crée le tuple avec l'element et vide
                 while cpt < len(formuleBrutList) - 1:  # tant que cpt est inférieur a la longueur de la liste - 1
                     while formuleBrutList[cpt] in signes.values():  # Tant que l'element comparé est un carac spécial
-                        if co == cf and formuleBrutList[cpt - 1] == "]":
+
+                        print("ininin")
+                        print(formuleBrutList[cpt])
+                        print()
+                        if co == cf or formuleBrutList[cpt - 1] == "]":
                             cf += 1
                             valeurModif -= 1
                         cpt += 1
                         paire[index] = (formuleBrutList[indice], formuleBrutList[cpt])  # Ajoute le 2eme element
                     cpt += 1
-                    if formuleBrutList[cpt] == "]" or cpt == len(formuleBrutList):
+                    if formuleBrutList[cpt - 1] == "]" or cpt == len(formuleBrutList):
                         dicoPaireValeur[paire[index]] = valeurModif  # ajoute au dictionnaire avec la valeur calculée
                     else:
-
-                        # print("indice")
-                        # print(indice)
-                        # print('cpt')
-                        # print(cpt)
-                        # print('formule CPT')
-                        # print(formuleBrutList[cpt])
-                        # print()
-                        # print("paireINDEX")
-                        # print(paire[index])
-                        # print()
-
                         dicoPaireValeur[paire[index]] = valeurModif  # Trouver un moyen pour supprimer le -1 ...
                         if dicoPaireValeur[paire[index]] == 0:
                             valeurModif = valeurMin(valeurModif)
                             dicoPaireValeur[paire[index]] = valeurModif
+
         else:
             if formuleBrutList[indice] == "(":
                 valeurModif += 1
