@@ -11,18 +11,18 @@ objectifs:
 
 """
 import DistributiviteSandbox
-
-formuleBrutString = "Apollôn#([Dêlios+Kalumnas-Medeôn]/Zeus)"
-
-formuleDeveloppeeString = "[Apollôn#[Dêlios+Kalumnas-Medeôn]]/[Apollôn#Zeus]"
-formuleDeveloppeeList = ['[', 'Apollôn', '#', '[', 'Dêlios', '+', 'Kalumnas-Medeôn', ']', '/', '[', 'Apollôn', '#',
-                         'Zeus', ']']
+import csv
 
 formuleBrutList1 = ['Apollôn', '#', '(', "Puthios", '+', "Kedrieus", ')']  # OK
 formuleBrutList2 = ['[', 'Theos', '#', 'Soter', ']', '#', '(', 'Artemis', '+', 'Apollon', ')']  # OK
 
 formuleBrutList3 = ['Apollôn', '#', '(', '[', 'Dêlios', '+', 'Kalumnas-Medeôn', ']', '/', 'Zeus', ')']  # OK
-formuleBrutList4 = ['(', '[', "Kurios", '#', 'Zeus', ']', '+', "Hêra", ')', '#', "Epêkoos"]
+formuleBrutList4 = ['(', '[', "Kurios", '#', 'Zeus', ']', '+', "Hêra", ')', '#', "Epêkoos"]  # OK
+
+formuleBrutList5 = ['[', '[', 'Zeus', '/', 'Heios', ']', '/', '[', 'Megas', '#', 'Sarapis', ']', ']', '+', '[',
+                    'Sunnaoi', '#', 'Theoi', ']']  # OK
+
+formuleBrutList6 = ['[', 'Apollon', '#', 'Puthios', ']', '+', '[', 'Apollon', '#', 'Kedrieus', ']']
 
 formuleBrutListBoss = ['[', '(', '[', 'Isis', '#', 'Sôtêr', ']', '/', 'Astartê', '/', '[', 'Aphroditê', '#', 'Euploia',
                        ']', ')', '#', 'Epêkoos', ']', '+', '[', 'Erôs', '/', 'Harpokratês', '/', 'Apollôn', ']']  # OK
@@ -74,7 +74,6 @@ signes = {
     8: "=",
     9: " "
 }
-
 
 #
 #
@@ -175,128 +174,6 @@ signes = {
 # print("")
 
 
-def newAlgo(formule):
-    couple1 = ""  # Permier élement pour le tuple
-    couple2 = ""  # Second élément pour le tuple
-
-    dico_paire_force = {}  # Dictionnaire des couples possibles avec les forces des liens
-
-    crochet_ouvert = 0  # compte le nombre de crochet ouveert
-    parenthese_ouverte = 0  # Compte le nombre de parenthèses ouverte
-
-    force_lien = 1  # Force du lien en les 2 élements du tuple
-
-    index = 0  # Index de l'élément couple1 1 3 7 9
-
-    while index < len(formule):
-
-        indice = index  # Indice pour avancer dans l'expression
-
-        if index == len(formule) - 1:  # Si l'index a la même valeur que la longueur que la formule stop
-            break
-
-        else:  # Regarde si il reste des elements non spéciaux sinon break
-            stop = index
-            if stop < len(formule) - 1:
-                if formule[stop] in signes.values():
-                    stop += 1
-                if stop + 1 == len(formule) - 1:
-                    break
-                stop += 1
-
-        while indice < len(formule) - 1:  # Tant que l'indice est inférieur a la longeur de
-
-            if formule[indice] == "[" and couple1 == "":  # Si l'élément set un crochet ouvert reçoit 3
-
-                crochet_ouvert += 1  # Ajoute 1 au nombre de crochets ouvert
-                force_lien = 3  # Force de lien 3
-                indice += 1
-
-            elif formule[indice] == "(" and couple1 == "":  # Si l'élément est une parenthèse ouverte reçoit 2
-                if crochet_ouvert == 0:  # Si pas de crochet ouvrant
-                    parenthese_ouverte += 1  # Ajoute 1 au nombre de parenthèses ouverte
-                    force_lien = 2  # Force de lien 2
-                    indice += 1
-                else:  # si pas de crochets ouvrants
-                    parenthese_ouverte += 1  # Ajoute 1 au nombre de parenthèses ouverte
-                    force_lien = 1  # Force de lien 1
-                    indice += 1
-            elif formule[indice] == '(':
-                parenthese_ouverte += 1  # Ajoute 1 au nombre de parenthèses ouverte
-                force_lien = 1  # Force de lien 1
-                indice += 1
-
-            elif formule[indice] == ")":  # Si l'élément est une parenthèse fermante
-
-                if parenthese_ouverte < 0:  # le nombre de parenthèses ouverte est 0 laisse a 0
-                    parenthese_ouverte = 0
-                else:
-                    parenthese_ouverte -= 1  # Enlève une parenthèse
-
-                if crochet_ouvert > 0:  # Regarde le nombre de crochet ouvert
-                    force_lien -= 1  # Si il y des crochets ouverts enlève 1 a la force
-                    indice += 1
-                else:  # Sinon remet la force a 1
-                    force_lien = 1
-                    indice += 1
-
-            elif formule[indice] == "]":
-
-                if crochet_ouvert == 0 and parenthese_ouverte > 0:  # Pas de crochets mais une parenthèse force 2
-                    force_lien = 2
-                # if crochet_ouvert == 0 and parenthese_ouverte == 0:  # Si le nombre de crochet ouvert est 0 laisse a 0
-                #     force_lien = 1
-                elif crochet_ouvert < 0:  # Si le nombre est inférieur a 0 le remet a 0
-                    crochet_ouvert = 0
-
-                else:
-                    crochet_ouvert -= 1  # Enlève un crochet
-
-                if parenthese_ouverte > 0 and crochet_ouvert != 0:
-                    force_lien -= 1  # Si il y a des parenthèsse ouvertes enlève 1 a la force
-                    indice += 1
-                else:  # Sinon remet la force a 1
-                    indice += 1
-
-            # Ajoute a couple 1 si vide et pas signe spécial
-            elif couple1 == "" and formule[indice] not in signes.values():
-                couple1 = formule[indice]
-                index = indice + 1
-                indice += 1
-
-            else:  # Si symbole autre avance de 1
-                indice += 1
-
-            if formule[indice] not in signes.values():  # Si l'élément est pas un signe spécial
-                if couple1 == "":  # L'ajoute a couple 1 si celui ci est vide sinon ajoute a couple 2
-                    couple1 = formule[indice]
-                    index = indice
-                    indice += 1
-                else:
-                    couple2 = formule[indice]  # Si couple1 est pris ajoute au second
-                    indice += 1
-
-            # Faire une condition
-            # if parenthese_ouverte > 0 and crochet_ouvert == 0:
-            #     force_lien = 2
-
-            if couple1 != "" and couple2 != "":  # Si les 2 variables sont non vides les ajoute au dictionnaire
-                if (couple1, couple2) in dico_paire_force:
-                    pass
-                else:
-                    dico_paire_force[(couple1, couple2)] = force_lien
-                couple2 = ""
-        couple1 = ""  # Réinitialise pour le prochain élément
-
-    print("dico")
-    print(dico_paire_force)
-    print()
-
-    return dico_paire_force
-
-
-# newAlgo(formuleBrutListBoss)
-
 """ Peut etre une solution
 
 Parcourir la séquence autant de fois qu'il y a d'élement,
@@ -312,12 +189,7 @@ def superAlgo(formule):
 
     dico_paire_force = {}  # Dictionnaire des couples possibles avec les forces des liens
 
-    # crochet_ouvert = 0  # compte le nombre de crochet ouveert
-    # parenthese_ouverte = 0  # Compte le nombre de parenthèses ouverte
-
     elementCompte = []  # Permet de stocker un element non spécial  déjà traité
-
-    force_lien = 1  # Force du lien en les 2 élements du tuple
 
     for index in range(len(formule)):  # Parcours la liste autant de fois qu'il y a d'éléments
 
@@ -332,44 +204,47 @@ def superAlgo(formule):
                 crochet_ouvert += 1  # Ajoute 1 aux crochets ouvert
                 if crochet_ouvert >= 1:  # Si le nobre de crochets ouvert est > 1 ajoute 3 sinon mets la force a 3
                     force_lien = crochet_ouvert * 3  # Donne au lien le nombre de crochet * 3
-            elif formule[element] == '[':
+            elif formule[element] == '[':  # Si l'element est un crochet et que couple1 ets non vide rajoute 1
                 crochet_ouvert += 1
 
             if formule[element] == ']':  # Si l'element est un crochet fermant
                 crochet_ouvert -= 1  # Enlève 1 aux crochets ouvert
                 if crochet_ouvert >= 1 and parenthese_ouverte == 0:  # Si le nombre de crochet ouvert est > 1 enlève 3
                     force_lien -= 3
-                    if force_lien <= 0:
+                    if force_lien <= 0:  # Si la force du lien atteint 0 ou moins le remet a 1
                         force_lien = 1
                 elif crochet_ouvert >= 1 and parenthese_ouverte >= 1:  # Si le nombre est >= enlève 1
                     force_lien -= 1
-                    if force_lien <= 0:
+                    if force_lien <= 0:  # Si la force du lien atteint 0 ou moins le remet a 1
                         force_lien = 1
-                elif crochet_ouvert == 0 and parenthese_ouverte >= 1:
+                elif crochet_ouvert == 0 and parenthese_ouverte >= 1:  # Si pas de crochet enleve 1 de force
                     force_lien -= 1
-                    if force_lien <= 0:
+                    if force_lien <= 0:  # Si la force du lien atteint 0 ou moins le remet a 1
                         force_lien = 1
                 else:
                     force_lien = 1
 
             if formule[element] == '(' and couple1 == "":  # Si l'élement est une parenthèse ouvrante
                 parenthese_ouverte += 1  # Ajoute 1 aux parenthèses ouvrantes
-                if parenthese_ouverte >= 1:  # Si parenthèses ouvrant est > 1 ajoute 2
+                if parenthese_ouverte >= 1:  # Si parenthèses ouvrant est > 1  force = 2 * nb parenthèses
                     force_lien = parenthese_ouverte * 2
                 else:  # Sinon met la force à 2
                     force_lien = 2
-            elif formule[element] == '(':
+            elif formule[element] == '(':  # Si parenthèse ouvrante et couple1 non vide ajoute 1
                 parenthese_ouverte += 1
 
             if formule[element] == ')':  # Si l'element est une parenthèse fermante enlève 1 aux parenthèses ouvrantes
                 parenthese_ouverte -= 1  # Enlève 1 aux parenthèses ouvrantes
                 if crochet_ouvert >= 1 and parenthese_ouverte >= 1:
                     force_lien -= 1
+                    if force_lien <= 0:  # Si la force du lien atteint 0 ou moins le remet a 1
+                        force_lien = 1
+
                 elif crochet_ouvert >= 1 and parenthese_ouverte == 0:
                     force_lien = crochet_ouvert * 3
                 elif parenthese_ouverte >= 1:  # Si le nombre de parenthèses ouvrante est > 1
                     force_lien -= 2
-                    if force_lien <= 0:
+                    if force_lien <= 0:  # Si la force du lien atteint 0 ou moins le remet a 1
                         force_lien = 1
                 else:
                     force_lien = 1
@@ -379,7 +254,7 @@ def superAlgo(formule):
                     if couple1 == "":  # Si couple1 est vide ajoute l'element
                         couple1 = formule[element]
                         elementCompte.append(formule[element])
-                    else:
+                    else:  # Sinon l'ajoute a couple2
                         couple2 = formule[element]
                 else:  # Sinon passe au suivant
                     pass
@@ -393,9 +268,24 @@ def superAlgo(formule):
         couple1 = ""  # Réinitialise couple 1
 
     print("Dico Yay")
-    for i,j in dico_paire_force.items():
-        print(i, ": " ,j)
+    for i, j in dico_paire_force.items():
+        print(i, ": ", j)
     print()
 
+    # Ecrit dans le CSV le resultat
+    ecrireCSV(dico_paire_force)
 
-superAlgo(formuleBrutListBoss)
+
+def ecrireCSV(dicoPaireForce):
+    with open('GrapheValue.csv', 'w', newline='', encoding='windows-1252') as csvfile:
+        writer = csv.writer(csvfile, delimiter=';')
+        writer.writerow(("Source", "Target", "Id", "Weight"))
+
+        id = 1  # Clé pour l'id
+        for cle, valeur in dicoPaireForce.items():
+            writer.writerow((cle[0], cle[1], id, valeur))
+            id += 1
+
+
+if __name__ == "__main__":
+    superAlgo(formuleBrutList6)
