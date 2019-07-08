@@ -21,11 +21,11 @@ formuleDeveloppeeList = ['[', 'Apollôn', '#', '[', 'Dêlios', '+', 'Kalumnas-Mede
 formuleBrutList1 = ['Apollôn', '#', '(', "Puthios", '+', "Kedrieus", ')']  # OK
 formuleBrutList2 = ['[', 'Theos', '#', 'Soter', ']', '#', '(', 'Artemis', '+', 'Apollon', ')']  # OK
 
-formuleBrutList3 = ['Apollôn', '#', '(', '[', 'Dêlios', '+', 'Kalumnas-Medeôn', ']', '/', 'Zeus', ')']
+formuleBrutList3 = ['Apollôn', '#', '(', '[', 'Dêlios', '+', 'Kalumnas-Medeôn', ']', '/', 'Zeus', ')']  # OK
 formuleBrutList4 = ['(', '[', "Kurios", '#', 'Zeus', ']', '+', "Hêra", ')', '#', "Epêkoos"]
 
 formuleBrutListBoss = ['[', '(', '[', 'Isis', '#', 'Sôtêr', ']', '/', 'Astartê', '/', '[', 'Aphroditê', '#', 'Euploia',
-                       ']', ')', '#', 'Epêkoos', ']', '+', '[', 'Erôs', '/', 'Harpokratês', '/', 'Apollôn', ']']
+                       ']', ')', '#', 'Epêkoos', ']', '+', '[', 'Erôs', '/', 'Harpokratês', '/', 'Apollôn', ']']  # OK
 # noms = {
 #     1: "Zeus",
 #     2: "Hêlios",
@@ -339,19 +339,27 @@ def superAlgo(formule):
                 crochet_ouvert -= 1  # Enlève 1 aux crochets ouvert
                 if crochet_ouvert >= 1 and parenthese_ouverte == 0:  # Si le nombre de crochet ouvert est > 1 enlève 3
                     force_lien -= 3
+                    if force_lien <= 0:
+                        force_lien = 1
                 elif crochet_ouvert >= 1 and parenthese_ouverte >= 1:  # Si le nombre est >= enlève 1
                     force_lien -= 1
+                    if force_lien <= 0:
+                        force_lien = 1
                 elif crochet_ouvert == 0 and parenthese_ouverte >= 1:
                     force_lien -= 1
+                    if force_lien <= 0:
+                        force_lien = 1
                 else:
                     force_lien = 1
 
-            if formule[element] == '(':  # Si l'élement est une parenthèse ouvrante
+            if formule[element] == '(' and couple1 == "":  # Si l'élement est une parenthèse ouvrante
                 parenthese_ouverte += 1  # Ajoute 1 aux parenthèses ouvrantes
                 if parenthese_ouverte >= 1:  # Si parenthèses ouvrant est > 1 ajoute 2
                     force_lien = parenthese_ouverte * 2
                 else:  # Sinon met la force à 2
                     force_lien = 2
+            elif formule[element] == '(':
+                parenthese_ouverte += 1
 
             if formule[element] == ')':  # Si l'element est une parenthèse fermante enlève 1 aux parenthèses ouvrantes
                 parenthese_ouverte -= 1  # Enlève 1 aux parenthèses ouvrantes
@@ -361,6 +369,8 @@ def superAlgo(formule):
                     force_lien = crochet_ouvert * 3
                 elif parenthese_ouverte >= 1:  # Si le nombre de parenthèses ouvrante est > 1
                     force_lien -= 2
+                    if force_lien <= 0:
+                        force_lien = 1
                 else:
                     force_lien = 1
 
@@ -383,7 +393,8 @@ def superAlgo(formule):
         couple1 = ""  # Réinitialise couple 1
 
     print("Dico Yay")
-    print(dico_paire_force)
+    for i,j in dico_paire_force.items():
+        print(i, ": " ,j)
     print()
 
 
