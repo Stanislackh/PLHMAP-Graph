@@ -35,14 +35,21 @@ def fenDestroy(fenetre):
 def ouvrirCSV():
     global fichiers
     global listeNomFichiers
+    global fileName
+
     fichiers = tkinter.filedialog.askopenfilenames(title="Ouvrir un fichier CSV", filetypes=[('CSV files', '.csv')])
 
     fi = 0
     listeNomFichiers = []
-
+    fileName = []
     for i in range(len(fichiers)):
-        r = os.path.split(fichiers[fi])  # Coupe le path et le fichier
-        listeNomFichiers.append(r[1])  # Récupère le nom du fichier
+        r1, r2 = os.path.split(fichiers[fi])  # Coupe le path et le fichier
+
+        nom, extension = os.path.splitext(r2)  # Garle le nom sans l'extension du fichier
+        fileName.append(nom)
+
+        listeNomFichiers.append(r2)  # Récupère le nom du fichier
+
         fi += 1
 
     fenDestroy(fenAccueil)  # Détruit la fenêtre d'accueil
@@ -93,7 +100,7 @@ def ongletsCSV(fenetre, listeNomFichiers):
     # Crée les onglets en fonction du nombre de ficheirs importés
     for j in range(len(listeNomFichiers)):
         nomOnglet.append("onglet_" + str(j))  # Crée un nom en boucle
-        nomOnglet[j] = listeNomFichiers[j]  # l'onglet ercoit le nom du fichier
+        nomOnglet[j] = fileName[j]  # l'onglet recoit le nom du fichier
         nomOnglet[j] = ttk.Frame(tabControl, width=500, height=300)  # Permet de créer l'espace pour afficher l'onglet
 
         # Création du canvas qui permet d'avoir la barre déroulante et afficher les lignes du CSV avec checkboxes
@@ -104,28 +111,28 @@ def ongletsCSV(fenetre, listeNomFichiers):
         canvas.pack(side=LEFT, fill=BOTH, expand=True)
         scroll.pack(side=LEFT, fill=Y)
 
-        frame = Frame(canvas, width=500, height=300)
+        frame = Frame(canvas, width=150, height=3000)
 
         remplirOnglet(frame, listeNomFichiers[j])  # Fonction qui permet de remplir l'onglet
 
-        canvas.create_window(175, 100, window=frame)
+        canvas.create_window(100, 1000, window=frame)
 
         # barreDeroulante(nomOnglet[j])  # Ajoute une barre déroulante dans l'onglet
 
         nomOnglet[j].pack_propagate(False)  # Evite l'aggrandissmenet dynamique
 
-        tabControl.add(nomOnglet[j], text=listeNomFichiers[j])  # Ajoute l'onglet et le montre
+        tabControl.add(nomOnglet[j], text=fileName[j])  # Ajoute l'onglet et le montre et le nomme
 
 
-# Fonction qui permet d'afficher les boutons de selection
+# Fonction qui permet d'afficher les boutons de selection  et la fonction Check Uncheck
 def afficheBouton(fenetre):
     # Coche toutes les checkboxes
-    def cocheTout(boxs=box):
+    def cocheTout(boxs=listeCheckboxes):
         for i in boxs:
             i.select()
 
     # Décoche toutes les checkboxes
-    def decocheTout(boxs=box):
+    def decocheTout(boxs=listeCheckboxes):
         for i in boxs:
             i.deselect()
 
@@ -138,23 +145,28 @@ def afficheBouton(fenetre):
     boutonUnchekAll.pack(side=LEFT, padx=5, pady=1)
 
     # Calcul avec le graphe valué
-    boutonGrapheValue = Button(fenetre, text="Graphe value", command=fenetreGrpahe, width=15, height=5)
+    boutonGrapheValue = Button(fenetre, text="Graphe value",
+                               command=lambda: [recupererCheckboxCheck(listeCheckboxes), fenetreGrpahe()],
+                               width=15, height=5)
     boutonGrapheValue.pack(side=RIGHT, padx=5, pady=1)
 
     # Calcul avec la Coocurence
     boutonCooccurrence = Button(fenetre, text="Coocurrence", command=fenetreGrpahe, width=15, height=5)
     boutonCooccurrence.pack(side=RIGHT, padx=5, pady=1)
 
+    # Fonction qui remplis les onglets
 
-# Fonction qui remplis les onglets
+
 def remplirOnglet(canvas, nomFichier):
-    global box
+    global listeCheckboxes
     with open(nomFichier, 'r', newline="") as csvfile:
         reader = csv.reader(csvfile, delimiter=";")
 
         ligne = 5  # Placement des lignes
         cases = []  # Noms des labels
-        box = []  # Les boxes
+        valu = []
+
+        listeCheckboxes = []  # Les boxes
         titre = 0
 
         for i in reader:
@@ -162,14 +174,17 @@ def remplirOnglet(canvas, nomFichier):
                 titre += 1
             else:
                 cases.append("Label_" + str(i[0]))
+                valu.append("Label_" + str(i[0]))
 
                 # lecture des lignes du csv
-                cases[0] = IntVar()
-                cases[0] = Checkbutton(canvas, text=(str(i[1])))
-                cases[0].select()  # Coche la case
+                valu[0] = BooleanVar()
+                valu[0].set(True)
+                cases[0] = Checkbutton(canvas, var=valu[0], text=(str(i[1])))
+                print(cases[0])
+                # cases[0].select()  # Coche la case
                 cases[0].pack(anchor=W)
 
-                box.append(cases[0])  # Ajoute les checkboxes
+                listeCheckboxes.append(cases[0])  # Ajoute les checkboxes
                 ligne += 1  # Ajoute 1 pour passer à la ligne suivante
 
 
@@ -253,6 +268,15 @@ def fenetreGrpahe():
     menuOptions.add_command(label="Exporter Graphe", command="")
 
     fenCoo.mainloop()
+
+
+def recupererCheckboxCheck(listeCheckboxes):
+    listeCheck = []
+
+    for i in listeCheckboxes:
+        if i.get() is True:
+            listeCheck.append(i)
+    print(listeCheck)
 
 
 if __name__ == "__main__":

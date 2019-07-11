@@ -26,6 +26,7 @@ Travaillons sur un algorithme pour travailler la formule
 
 import csv
 import os
+from datetime import datetime
 from collections import Counter
 
 #  Liste des formules à étudier
@@ -51,48 +52,7 @@ f12 = "[Zeus # Brontôn] + [Zeus # Karpodotês] + [Zeus # Eucharistos]"
 
 # Liste des attestations
 global attestations
-attestations = [f1]
-# """Liste des Dieux et Mots"""
-
-"""Lecture du CSV et stockage dans une liste """
-# def lectureCSV()
-
-noms = {
-    1: "Zeus",
-    2: "Hêlios",
-    3: "Megas",
-    4: "Sarapis",
-    5: "Apollôn",
-    6: "Puthios",
-    7: "Kedrieus",
-    8: "Kurios",
-    9: "Hêra",
-    10: "Epêkoos",
-    11: "Ammôn",
-    12: "Chnoubis",
-    13: "Satis",
-    14: "Hestia",
-    15: "Anoukis",
-    16: "Isis",
-    17: "Sôtêr",
-    18: "Astartê",
-    19: "Aphroditê",
-    20: "Euploia",
-    21: "Theos",
-    22: "Artemis",
-    23: "Athêna",
-    24: "Boulaios",
-    25: "Dêlios",
-    26: "Kalumnas-Medeôn",
-    27: "Hugieia",
-    28: "Telesphoros",
-    29: "Alexiponos",
-    30: "Dionusos",
-    31: "Phleos",
-    32: "Brontôn",
-    33: "Karpodotês",
-    34: "Eucharistos",
-    35: "Asklêpios"}
+attestations = [f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16]
 
 """ Liste des signes pour les formules """
 
@@ -107,6 +67,27 @@ signes = {
     8: "=",
     9: " "
 }
+
+date = datetime.now()  # Récupère l'heure et la date du jour
+datestr = date.strftime('_%Y-%m-%d-%H-%M-%S')
+
+
+def creationDicoDynamique(nomsDansFormules):  # Fonction qui permet de créer le dictionnaire des noms dynamiquement
+    global dicoNoms
+    global cleDico
+
+    dicoNoms = {}  # Dictionaire des noms
+    cleDico = 0  # Clé pour le dictionnaire
+
+    for i in nomsDansFormules.values():  # Pour chaque nom dans triée dans les formules
+        for element in i:  # Pour chaque élément dans la liste
+            if element in dicoNoms.values():  # Si l l'élément est dans da liste pass Sinon l'ajoute
+                pass
+            else:
+                dicoNoms[cleDico] = element
+                cleDico += 1
+
+    return dicoNoms  # Renvoie le dictionnaire
 
 
 def coocurenceListe(liste):  # Permet de calculer la Coocurence des formules
@@ -155,6 +136,8 @@ def coocurenceListe(liste):  # Permet de calculer la Coocurence des formules
         clea += 1
         compte = {}.fromkeys(set(final), 0)  # Définit le compteur pour chaque mot présent
 
+        creationDicoDynamique(nomsDansFormules)  # Crée le dictionnaire avec une clé par nom différent
+
         for valeur in final:  # Compte le nombre d'occurence de mots dans la liste
             compte[valeur] += 1
         poids[cle] = compte  # Ajoute le nombre de fois qu'apparait un nom dans chaque formule
@@ -181,7 +164,7 @@ def coocurenceListe(liste):  # Permet de calculer la Coocurence des formules
             else:
                 apparait[nom] += nombre  # Ajoute la valeur si le nom existe déjà
 
-    """Calcule le nombre de fois qu'un nom apparait dans toutes les formules"""
+    """Calcul le nombre de fois qu'un nom apparait dans toutes les formules"""
 
     for element in poids.values():  # Parcous le dictionnaire de dictionnaire
         for i in element:  # Parcours chaque élémément du dictionnaire
@@ -202,7 +185,7 @@ def coocurenceListe(liste):  # Permet de calculer la Coocurence des formules
 
 def couplesArcs(formule):
     listeNoms = []
-    for element in noms.values():  # récupère la liste de noms
+    for element in dicoNoms.values():  # récupère la liste de noms
         if element in formule:
             listeNoms.append(element)
 
@@ -232,7 +215,7 @@ def nomsNombres(dicoArc):  # Penser a faire le compte pour le nombre de paires i
 
     for element in dicoArc.values():  # Regarde pour chaque couple de nom l'id qui correspond a chaque nom
         for paire in element:
-            for cle, valeur in noms.items():
+            for cle, valeur in dicoNoms.items():
                 if valeur == paire[0]:
                     source.append(cle)
                 if valeur == paire[1]:
@@ -265,25 +248,27 @@ def comptePoidsArc(couplesId):  # Compte le nombre de fois où le couple apparaît
 
 
 def csvGraphes(noeud, apparait, arc):
-    if os.path.exists("Nodes.csv"):  # Si le fichier existe il est supprimé pour en créer un nouveau
-        os.remove("Nodes.csv")
-        nodes(noeud, apparait)
+    if os.path.exists(
+            "Nodes" + datestr + ".csv"):  # Si le fichier existe il est supprimé pour en créer un nouveau
+        os.remove("Nodes" + datestr + ".csv")
+        nodes(noeud, apparait)  # Appelle la fonction qui écrit le CSV pour les Noeuds
     else:
-        nodes(noeud, apparait)
+        nodes(noeud, apparait)  # Appelle la fonction qui écrit le CSV pour les Noeuds
 
     """Test écriture du CSV pour les Arcs"""
-    if os.path.exists("Edges.csv"):  # Si le fichier existe il est supprimé pour en créer un nouveau
-        os.remove("Edges.csv")
-        edges(arc)
+    if os.path.exists(
+            "Edges" + datestr + ".csv"):  # Si le fichier existe il est supprimé pour en créer un nouveau
+        os.remove("Edges" + datestr + ".csv")
+        edges(arc)  # Appelle la fonction qui écrit le CSV pour les Arcs
     else:
-        edges(arc)
+        edges(arc)  # Appelle la fonction qui écrit le CSV pour les Arcs
 
 
 """ Ecriture des noeuds dans un csv"""
 
 
 def nodes(noeud, apparait):  # faire une option de nommage du fichier
-    with open('Nodes.csv', 'w', newline='', encoding='windows-1252') as csvfile:
+    with open("Nodes" + datestr + ".csv", 'w', newline='', encoding='windows-1252') as csvfile:
         writer = csv.writer(csvfile, delimiter=';')
         writer.writerow(("Nodes", "Id", "Label", "Weight", "Weight2"))  # Ecriture en-tête du fichier
 
@@ -297,7 +282,7 @@ def nodes(noeud, apparait):  # faire une option de nommage du fichier
             tempElem.append(element)  # Weight2
 
         for i in tempCle:  # Associe au nom la clé du dictionnaire
-            for cle, element in noms.items():
+            for cle, element in dicoNoms.items():
                 if element == i:
                     idNoms.append(cle)
 
@@ -312,7 +297,7 @@ def nodes(noeud, apparait):  # faire une option de nommage du fichier
 
 
 def edges(arc):  # faire une option de nommage du fichier
-    with open('Edges.csv', 'w', newline='', encoding='windows-1252') as csvfile:
+    with open("Edges" + datestr + ".csv", 'w', newline='', encoding='windows-1252') as csvfile:
         writer = csv.writer(csvfile, delimiter=';')
         writer.writerow(("Source", "Target", "Type", "Id", "libelle", "Weight"))  # Ecriture en-tête du fichier
 
@@ -321,28 +306,8 @@ def edges(arc):  # faire une option de nommage du fichier
             writer.writerow((cle[0], cle[1], "Undirected", id, "", element))
             id += 1
 
-"""Fonction qui crée un csv avec le nom een source et target"""
-
-def nomSourceTarget(noeud, apparait, arc):
-    with open('SourceTarget.csv', 'w', newline='', encoding='windows-1252') as csvfile:
-        writer = csv.writer(csvfile, delimiter=";")
-        writer.writerow(("Source", "Target", "Type", "Id", "libelle", "Weight"))
-
-        tempCle = []
-        idNoms = []
-
-        for cle, element in apparait.items():  # Récupération dans les listes
-            tempCle.append(cle)  # Label
-
-        for i in tempCle:  # Associe au nom la clé du dictionnaire
-            for cle, element in noms.items():
-                if element == i:
-                    idNoms.append(cle)
-
 
 if __name__ == "__main__":
-    # print(coocurenceArc(f12))
-    # writeCSVFormule(attestations)
     coocurenceListe(attestations)  # OK Done !
     # print("")
-    # traiteFormule(f1)
+    # print(creationDicoDynamique(attestations))
