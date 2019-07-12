@@ -31,6 +31,23 @@ def fenDestroy(fenetre):
     fenetre.destroy()
 
 
+# Fonction qui fait appel à la barre des menus
+def barreMenu(fenetre):
+    # Barre de menu
+    menubar = Menu(fenetre)
+    fenetre.config(menu=menubar)
+
+    # Onglet d'import des CSV
+    menuCSV = Menu(menubar, tearoff=0)
+    menubar.add_cascade(label="Importer CSV", menu=menuCSV)
+    menuCSV.add_command(label="Importer CSV", command=ouvrirCSV)
+
+    # Onglet d'ouverture de la page d'aide
+    menuAide = Menu(menubar, tearoff=0)
+    menubar.add_cascade(label="Aide", menu=menuAide)
+    menuAide.add_command(label="Aide", command=fenetreAide)
+
+
 # Fonction d'ouverture boite de dialogue pour l'import des CSV
 def ouvrirCSV():
     global fichiers
@@ -53,6 +70,7 @@ def ouvrirCSV():
         fi += 1
 
     fenDestroy(fenAccueil)  # Détruit la fenêtre d'accueil
+
     fenetrePrincipale()  # ouvre le fenêtre de résultat
 
 
@@ -71,23 +89,6 @@ def fenetreAide():
     # Première ligne de texte explicatif
     h1 = Label(fenAide, text="Je l'éditerai plus tard")
     h1.grid(column=0, row=1)
-
-
-# Fonction qui fait appel à la barre des menus
-def barreMenu(fenetre):
-    # Barre de menu
-    menubar = Menu(fenetre)
-    fenetre.config(menu=menubar)
-
-    # Onglet d'import des CSV
-    menuCSV = Menu(menubar, tearoff=0)
-    menubar.add_cascade(label="Importer CSV", menu=menuCSV)
-    menuCSV.add_command(label="Importer CSV", command=ouvrirCSV)
-
-    # Onglet d'ouverture de la page d'aide
-    menuAide = Menu(menubar, tearoff=0)
-    menubar.add_cascade(label="Aide", menu=menuAide)
-    menuAide.add_command(label="Aide", command=fenetreAide)
 
 
 # Ajoute les onglets à la fenêtre
@@ -124,17 +125,21 @@ def ongletsCSV(fenetre, listeNomFichiers):
         tabControl.add(nomOnglet[j], text=fileName[j])  # Ajoute l'onglet et le montre et le nomme
 
 
-# Fonction qui permet d'afficher les boutons de selection  et la fonction Check Uncheck
+# Fonction qui permet d'afficher les boutons de selection et la fonction Check Uncheck
 def afficheBouton(fenetre):
     # Coche toutes les checkboxes
     def cocheTout(boxs=listeCheckboxes):
-        for i in boxs:
-            i.select()
+        for i in range(len(boxs)):
+            boxs[i].select()
+            listeV[i].set(1)
+            print(listeV[i].get())
 
     # Décoche toutes les checkboxes
     def decocheTout(boxs=listeCheckboxes):
-        for i in boxs:
-            i.deselect()
+        for i in range(len(boxs)):
+            boxs[i].deselect()
+            listeV[i].set(0)
+            print(listeV[i].get())
 
     # Check all checkboxes
     boutonCheckAll = Button(fenetre, text="Check All", command=cocheTout, width=15, height=5)
@@ -146,7 +151,7 @@ def afficheBouton(fenetre):
 
     # Calcul avec le graphe valué
     boutonGrapheValue = Button(fenetre, text="Graphe value",
-                               command=lambda: [recupererCheckboxCheck(listeCheckboxes), fenetreGrpahe()],
+                               command=lambda: [recupererCheckboxCheck()],
                                width=15, height=5)
     boutonGrapheValue.pack(side=RIGHT, padx=5, pady=1)
 
@@ -159,32 +164,38 @@ def afficheBouton(fenetre):
 
 def remplirOnglet(canvas, nomFichier):
     global listeCheckboxes
-    with open(nomFichier, 'r', newline="") as csvfile:
-        reader = csv.reader(csvfile, delimiter=";")
+    global listeV
+    global listeLabels
 
-        ligne = 5  # Placement des lignes
+    with open(nomFichier, 'r', newline="") as csvfile:
+        reader = csv.reader(csvfile, delimiter=",")
+
+        ligne = 1  # Placement des lignes
         cases = []  # Noms des labels
-        valu = []
+        v = []  # Valeur des variables
+        labels = []
 
         listeCheckboxes = []  # Les boxes
+        listeV = []  # les valeurs
+        listeLabels = []  # Les formules
+
         titre = 0
 
         for i in reader:
+            # print(i)
             if titre == 0:
                 titre += 1
             else:
+                listeLabels.append(str(i[1]))
                 cases.append("Label_" + str(i[0]))
-                valu.append("Label_" + str(i[0]))
-
+                v.append("Label_" + str(i[0]))
                 # lecture des lignes du csv
-                valu[0] = BooleanVar()
-                valu[0].set(True)
-                cases[0] = Checkbutton(canvas, var=valu[0], text=(str(i[1])))
-                print(cases[0])
-                # cases[0].select()  # Coche la case
+                v[0] = IntVar()
+                cases[0] = Checkbutton(canvas, variable=v[0], text=(str(i[1])))
                 cases[0].pack(anchor=W)
 
                 listeCheckboxes.append(cases[0])  # Ajoute les checkboxes
+                listeV.append(v[0])
                 ligne += 1  # Ajoute 1 pour passer à la ligne suivante
 
 
@@ -270,13 +281,12 @@ def fenetreGrpahe():
     fenCoo.mainloop()
 
 
-def recupererCheckboxCheck(listeCheckboxes):
+def recupererCheckboxCheck():  # Récupére la liste des checkboxes cochées
     listeCheck = []
 
-    for i in listeCheckboxes:
-        if i.get() is True:
-            listeCheck.append(i)
-    print(listeCheck)
+    for i in range(len(listeV)):
+        if listeV[i].get() == 1:
+            listeCheck.append(listeLabels[i])
 
 
 if __name__ == "__main__":
