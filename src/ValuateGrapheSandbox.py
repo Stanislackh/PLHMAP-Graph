@@ -31,9 +31,9 @@ f7 = ['[', '(', '[', 'Isis', '#', 'Sôtêr', ']', '/', 'Astartê', '/', '[', 'Aphro
 ff1 = "([Kurios#Zeus]+Hêra)#Epêkoos"
 ff2 = "[Theos#Soter]#(Artemis+Apollon)"
 ff3 = "[([Isis# Sôtêr]/Astartê/[Aphroditê#Euploia])#Epêkoos] + [Erôs/Harpokratês/Apollôn]"
-
+ff4 = "[Apollôn#Puthios]+[Apollôn#Kedrieus]"
 listeFormules2 = [f1, f2, f3, f4, f5, f7]
-listeFormules = [ff1, ff2, ff3]
+listeFormules = [ff4]
 
 signes = {
     1: "+",
@@ -58,7 +58,7 @@ def nettoyageFormules(listeformules):
 
     trigger = ""  # Pour reformer le nom
 
-    for indice in range(len(listeformules)):  # Regarde pour la longueur de la lliste de formule
+    for indice in range(len(listeformules)):  # Regarde pour la longueur de la liste de formule
         listeSplit = []  # Stockage de la formule splittée
 
         for j in listeFormules[indice]:  # Pour chaque élément de la formule
@@ -77,7 +77,8 @@ def nettoyageFormules(listeformules):
                 listePropre.append(j)  # Ajoute à la liste
             else:
                 trigger += j  # trigger reçoit la caractène non spécial
-        listeSuperPropre.append(listePropre)  # Ajoute à la liste de fin
+        listePropre.append(trigger)
+    listeSuperPropre.append(listePropre)  # Ajoute à la liste de fin
 
     return listeSuperPropre  # Renvoie la liste de fin
 
@@ -118,13 +119,13 @@ def superAlgo(listeFormules):
         couple2 = ""  # Second élément pour le tuple
         repeat = ""  # Le nom qui est répété
 
+        crochet_ouvert = 0  # compte le nombre de crochet ouveert
+        parenthese_ouverte = 0  # Compte le nombre de parenthèses ouverte
+
         dico_paire_force = {}  # Dictionnaire des couples possibles avec les forces des liens
         elementCompte = []  # Permet de stocker un element non spécial  déjà traité
 
         for index in range(len(formule)):  # Parcours la liste autant de fois qu'il y a d'éléments
-
-            crochet_ouvert = 0  # compte le nombre de crochet ouveert
-            parenthese_ouverte = 0  # Compte le nombre de parenthèses ouverte
 
             force_lien = 1  # Force du lien en les 2 élements du tuple
 
@@ -188,8 +189,9 @@ def superAlgo(listeFormules):
                         else:  # Sinon l'ajoute a couple2
                             couple2 = formule[element]
                     else:  # Sinon passe au suivant
-                        repetition = True  # Indique une répétition
-                        repeat = formule[element]
+                        if couple1 == formule[element] and repeat == "":
+                            repeat = element
+                            repetition = True  # Indique une répétition
                         if repetition is True:
                             pass
                         else:
@@ -202,7 +204,40 @@ def superAlgo(listeFormules):
                         dico_paire_force[(couple1, couple2)] = force_lien
                     couple2 = ""  # Réinitialise le couple 2
             couple1 = ""  # Réinitialise couple 1
-        ecrireCSV(dico_paire_force, elementCompte)
+
+            print(dico_paire_force)
+            print()
+
+        # Gestion de la répétition
+        for i in reversed(range(repeat)):  # Parcours en sens inverse depuis l'élément répété
+            if formule[i] == '[':  # Si l'element est un crochet ajoute 1 et lien * 3
+                crochet_ouvert += 1
+                force_lien = crochet_ouvert * 3
+
+            if formule[i] == '(':  # Si l'element est une parenthèse ajoute 1 et lien * 2
+                parenthese_ouverte += 1
+                force_lien = parenthese_ouverte * 2
+
+            if formule[i] not in signes.values():  # Si rencontre une élément non spécial coupe la boucle
+                break
+
+        couple1 = formule[repeat]  # Couple1 recoit l'element répété
+        print("couple1")
+        print(couple1)
+
+        for i in formule[repeat + 1:]:  # Parcours la boucle depuis l'élément répété
+            if i not in signes.values():  # Si l'élément est pas un caratère spécial couple2 = i
+                couple2 = i
+            if couple1 != "" and couple2 != "":  # Si les 2 variables sont différente de vide
+                # Si le couple existe replace la valeur si elle est plus grande
+                if (couple1, couple2) in dico_paire_force and \
+                        force_lien > dico_paire_force[(couple1, couple2)]:
+                    dico_paire_force[(couple1, couple2)] = force_lien
+
+        print('dico force 2')
+        print(dico_paire_force)
+
+        # ecrireCSV(dico_paire_force, elementCompte)
         # Ecrit dans le CSV le resultat
     # return ecrireCSV(dico_paire_force)
 
