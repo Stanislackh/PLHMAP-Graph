@@ -8,9 +8,8 @@ objectifs:
  - Faire une table d'adjacence
  - Comparer avec la formule développée
  - Mettre les valeurs en fonction des crochets
-
 """
-import DistributiviteSandbox
+
 import csv
 import os
 from datetime import datetime
@@ -33,7 +32,7 @@ ff2 = "[Theos#Soter]#(Artemis+Apollon)"
 ff3 = "[([Isis# Sôtêr]/Astartê/[Aphroditê#Euploia])#Epêkoos] + [Erôs/Harpokratês/Apollôn]"
 ff4 = "[Apollôn#Puthios]+[Apollôn#Kedrieus]"
 listeFormules2 = [f1, f2, f3, f4, f5, f7]
-listeFormules = [ff4]
+listeFormules = [ff1, ff4]
 
 signes = {
     1: "+",
@@ -61,13 +60,14 @@ def nettoyageFormules(listeformules):
     for indice in range(len(listeformules)):  # Regarde pour la longueur de la liste de formule
         listeSplit = []  # Stockage de la formule splittée
 
-        for j in listeFormules[indice]:  # Pour chaque élément de la formule
+        for j in listeformules[indice]:  # Pour chaque élément de la formule
             listeSplit.append(j)  # L'ajoute a la liste
         listeInter.append(listeSplit)  # La listes est ajoutée a la liste
 
     listeSuperPropre = []  # Liste de fin
 
     for i in listeInter:  # Pour la liste intermédiaire
+
         listePropre = []  # Initialise la liste tampons
         for j in i:  # Pour chaque élément dans la liste
             if j in signes.values():  # Si j est un caractère spécial
@@ -78,7 +78,8 @@ def nettoyageFormules(listeformules):
             else:
                 trigger += j  # trigger reçoit la caractène non spécial
         listePropre.append(trigger)
-    listeSuperPropre.append(listePropre)  # Ajoute à la liste de fin
+        trigger = ""  # Réinitialise trigger
+        listeSuperPropre.append(listePropre)  # Ajoute à la liste de fin
 
     return listeSuperPropre  # Renvoie la liste de fin
 
@@ -117,7 +118,9 @@ def superAlgo(listeFormules):
     for formule in listePrete:
         couple1 = ""  # Permier élement pour le tuple
         couple2 = ""  # Second élément pour le tuple
+
         repeat = ""  # Le nom qui est répété
+        repetition = False
 
         crochet_ouvert = 0  # compte le nombre de crochet ouveert
         parenthese_ouverte = 0  # Compte le nombre de parenthèses ouverte
@@ -141,16 +144,17 @@ def superAlgo(listeFormules):
 
                 if formule[element] == ']':  # Si l'element est un crochet fermant
                     crochet_ouvert -= 1  # Enlève 1 aux crochets ouvert
-                    if crochet_ouvert >= 1 and parenthese_ouverte == 0:  # Si le nombre de crochet est > 1 enlève 3
-                        force_lien -= 3
+                    if crochet_ouvert >= 1 and parenthese_ouverte == 0:  # Si le nombre de crochet est > 1 crochet *3
+                        force_lien = crochet_ouvert * 3
                         if force_lien <= 0:  # Si la force du lien atteint 0 ou moins le remet a 1
                             force_lien = 1
-                    elif crochet_ouvert >= 1 and parenthese_ouverte >= 1:  # Si le nombre est >= enlève 1
-                        force_lien -= 1
+                    # Si le nombre de crochet et parenthèse est >= 1 crochet *3 + parenthèses * 2
+                    elif crochet_ouvert >= 1 and parenthese_ouverte >= 1:
+                        force_lien = crochet_ouvert * 3 + parenthese_ouverte * 2
                         if force_lien <= 0:  # Si la force du lien atteint 0 ou moins le remet a 1
                             force_lien = 1
-                    elif crochet_ouvert == 0 and parenthese_ouverte >= 1:  # Si pas de crochet enleve 1 de force
-                        force_lien -= 1
+                    elif crochet_ouvert == 0 and parenthese_ouverte >= 1:  # Si pas de crochet parenthèses * 2
+                        force_lien = parenthese_ouverte * 2
                         if force_lien <= 0:  # Si la force du lien atteint 0 ou moins le remet a 1
                             force_lien = 1
                     else:
@@ -205,55 +209,52 @@ def superAlgo(listeFormules):
                     couple2 = ""  # Réinitialise le couple 2
             couple1 = ""  # Réinitialise couple 1
 
-            print(dico_paire_force)
-            print()
-
         # Gestion de la répétition
-        for i in reversed(range(repeat)):  # Parcours en sens inverse depuis l'élément répété
-            if formule[i] == '[':  # Si l'element est un crochet ajoute 1 et lien * 3
-                crochet_ouvert += 1
-                force_lien = crochet_ouvert * 3
+        if repeat != "":
+            for i in reversed(range(repeat)):  # Parcours en sens inverse depuis l'élément répété
+                if formule[i] == '[':  # Si l'element est un crochet ajoute 1 et lien * 3
+                    crochet_ouvert += 1
+                    force_lien = crochet_ouvert * 3
 
-            if formule[i] == '(':  # Si l'element est une parenthèse ajoute 1 et lien * 2
-                parenthese_ouverte += 1
-                force_lien = parenthese_ouverte * 2
+                if formule[i] == '(':  # Si l'element est une parenthèse ajoute 1 et lien * 2
+                    parenthese_ouverte += 1
+                    force_lien = parenthese_ouverte * 2
 
-            if formule[i] not in signes.values():  # Si rencontre une élément non spécial coupe la boucle
-                break
+                if formule[i] not in signes.values():  # Si rencontre une élément non spécial coupe la boucle
+                    break
 
-        couple1 = formule[repeat]  # Couple1 recoit l'element répété
-        print("couple1")
-        print(couple1)
+            couple1 = formule[repeat]  # Couple1 recoit l'element répété
 
-        for i in formule[repeat + 1:]:  # Parcours la boucle depuis l'élément répété
-            if i not in signes.values():  # Si l'élément est pas un caratère spécial couple2 = i
-                couple2 = i
-            if couple1 != "" and couple2 != "":  # Si les 2 variables sont différente de vide
-                # Si le couple existe replace la valeur si elle est plus grande
-                if (couple1, couple2) in dico_paire_force and \
-                        force_lien > dico_paire_force[(couple1, couple2)]:
-                    dico_paire_force[(couple1, couple2)] = force_lien
+            for i in formule[repeat + 1:]:  # Parcours la boucle depuis l'élément répété
+                if i not in signes.values():  # Si l'élément est pas un caratère spécial couple2 = i
+                    couple2 = i
+                if couple1 != "" and couple2 != "":  # Si les 2 variables sont différente de vide
+                    # Si le couple existe replace la valeur si elle est plus grande
+                    if (couple1, couple2) in dico_paire_force:
+                        if force_lien > dico_paire_force[(couple1, couple2)]:
+                            dico_paire_force[(couple1, couple2)] = force_lien
 
-        print('dico force 2')
-        print(dico_paire_force)
+            # Ecrit dans le CSV le resultat
+            ecrireCSV(dico_paire_force, elementCompte)
+            repeat = ""
 
-        # ecrireCSV(dico_paire_force, elementCompte)
-        # Ecrit dans le CSV le resultat
-    # return ecrireCSV(dico_paire_force)
+        else:
+            # Ecrit dans le CSV le resultat
+            ecrireCSV(dico_paire_force, elementCompte)
 
 
 def ecrireCSV(dicoPaireForce, elementCompte):  # Ecris le CSV avec la nouvelle méthode de calcul
     id = 1  # Id pour les paires
     if os.path.exists('GrapheValueEdges' + datestr + '.csv'):  # Si le fichier existe ecrit a la suite
         with open('GrapheValueEdges' + datestr + '.csv', 'a', newline='', encoding='windows-1252') as csvfile:
-            writer = csv.writer(csvfile, delimiter=';')
+            writer = csv.writer(csvfile, delimiter=',')
             writer.writerow(("", "", "", ""))
             for cle, valeur in dicoPaireForce.items():
                 writer.writerow((cle[0], cle[1], id, valeur))
                 id += 1
 
         with open('GrapheValueNodes' + datestr + '.csv', 'a', newline='', encoding='windows-1252') as csvfile:
-            writer = csv.writer(csvfile, delimiter=';')
+            writer = csv.writer(csvfile, delimiter=',')
             writer.writerow(('', '', ''))
 
             num = 1
@@ -264,7 +265,7 @@ def ecrireCSV(dicoPaireForce, elementCompte):  # Ecris le CSV avec la nouvelle m
 
         # Correspond aux arcs dans Gephi
         with open('GrapheValueEdges' + datestr + '.csv', 'w', newline='', encoding='windows-1252') as csvfile:
-            writer = csv.writer(csvfile, delimiter=';')
+            writer = csv.writer(csvfile, delimiter=',')
             writer.writerow(("Source", "Target", "Id", "Force_lien"))
 
             for cle, valeur in dicoPaireForce.items():
@@ -272,7 +273,7 @@ def ecrireCSV(dicoPaireForce, elementCompte):  # Ecris le CSV avec la nouvelle m
                 id += 1
 
         with open('GrapheValueNodes' + datestr + '.csv', 'w', newline='', encoding='windows-1252') as csvfile:
-            writer = csv.writer(csvfile, delimiter=';')
+            writer = csv.writer(csvfile, delimiter=',')
             writer.writerow(('Nodes', 'nom', 'Label',))
 
             num = 1

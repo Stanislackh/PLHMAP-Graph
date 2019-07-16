@@ -10,6 +10,8 @@ from tkinter import messagebox
 from tkinter import ttk
 from tkinter import colorchooser
 import tkinter.filedialog
+import Coocurrence
+import NouvelleMethode
 
 
 # import AlgoTestFormuleSandBox
@@ -151,7 +153,7 @@ def afficheBouton(fenetre):
 
     # Calcul avec le graphe valué
     boutonGrapheValue = Button(fenetre, text="Graphe value",
-                               command=lambda: [recupererCheckboxCheck()],
+                               command=lambda: [recupererCheckboxCheck(), fenetreGrpahe()],
                                width=15, height=5)
     boutonGrapheValue.pack(side=RIGHT, padx=5, pady=1)
 
@@ -287,6 +289,8 @@ def recupererCheckboxCheck():  # Récupére la liste des checkboxes cochées
     for i in range(len(listeV)):
         if listeV[i].get() == 1:
             listeCheck.append(listeLabels[i])
+    messagebox.showinfo("Formules sélectionnées", str(listeCheck))
+    return listeCheck
 
 
 if __name__ == "__main__":
