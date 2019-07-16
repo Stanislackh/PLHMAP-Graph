@@ -46,13 +46,13 @@ f9 = "[Zeus # Boulaios] + [Athêna # Boulaios] + Hestia"
 f13 = "Apollôn # (Dêlios + Kalumnas-Medeôn)"
 f15 = "(Asklêpios + Hugieia + Telesphoros) # Alexiponos"
 f10 = "Artemis # Puthios"
-f11 = "Dionusos # Phleos"
-f16 = "Sôtêr"
-f12 = "[Zeus # Brontôn] + [Zeus # Karpodotês] + [Zeus # Eucharistos]"
+f11 = ""
+f16 = "{38}#[{45}#({46}#{47})]"
+f12 = "[Zeus#Brontôn]+[Zeus#Karpodotês]+[Zeus#Eucharistos]"
 
 # Liste des attestations
 global attestations
-attestations = [f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16]
+attestations = [f12]
 
 """ Liste des signes pour les formules """
 
@@ -65,11 +65,46 @@ signes = {
     6: "[",
     7: "]",
     8: "=",
-    9: " "
+    9: " ",
+    10: "{",
+    11: "}"
 }
 
 date = datetime.now()  # Récupère l'heure et la date du jour
 datestr = date.strftime('_%Y-%m-%d-%H-%M-%S')
+
+
+# Prépare les formules pour le traitement
+def nettoyageFormules(listeformules):
+    listeInter = []
+
+    trigger = ""  # Pour reformer le nom
+
+    for indice in range(len(listeformules)):  # Regarde pour la longueur de la liste de formule
+        listeSplit = []  # Stockage de la formule splittée
+
+        for j in listeformules[indice]:  # Pour chaque élément de la formule
+            listeSplit.append(j)  # L'ajoute a la liste
+        listeInter.append(listeSplit)  # La listes est ajoutée a la liste
+
+    listeSuperPropre = []  # Liste de fin
+
+    for i in listeInter:  # Pour la liste intermédiaire
+
+        listePropre = []  # Initialise la liste tampons
+        for j in i:  # Pour chaque élément dans la liste
+            if j in signes.values():  # Si j est un caractère spécial
+                if trigger != "":  # Si trigger est pas vide ajoute trigger à la liste
+                    listePropre.append(trigger)
+                    trigger = ""  # Réinitialise Trigger
+                listePropre.append(j)  # Ajoute à la liste
+            else:
+                trigger += j  # trigger reçoit la caractène non spécial
+        listePropre.append(trigger)
+        trigger = ""  # Réinitialise trigger
+        listeSuperPropre.append(listePropre)  # Ajoute à la liste de fin
+
+    return listeSuperPropre  # Renvoie la liste de fin
 
 
 def creationDicoDynamique(nomsDansFormules):  # Fonction qui permet de créer le dictionnaire des noms dynamiquement
@@ -98,6 +133,7 @@ def coocurenceListe(liste):  # Permet de calculer la Coocurence des formules
     """
 
     """Compte le poids pour les noeuds"""
+
     poids = {}  # Dictionnaire qui indique le nombre total d'apparition du mot
     cle = 0  # Clé pour le dictionnaire à incrémenter
     noeud = {}  # Dictionnaire qui indique le nombre de formules où un mot est mentionné (unique)
@@ -107,29 +143,18 @@ def coocurenceListe(liste):  # Permet de calculer la Coocurence des formules
     # Lit pour chaque élément de la liste
     for element in liste:  # Applique pour chaque élément de la liste le traitement de la formule
         formule = element
-        res = formule.split(" ")  # Permet de découper la formule en supprimant les espaces
 
-        for i in res:
-            for j in signes.values():  # Regarde dans le dictionnaire des signes si il apparait
-                if i == j:
-                    res.remove(j)  # Supprime les signes spéciaux des formules
-        temp = []  # Liste temporaire
+        trigger = ""  # Pour récupérer les noms
+        final = []  # Liste qui récupère les noms
 
-        # A mettre dans une autre fonction
-        for i in res:  # Permet de parcourir les élément de la liste res
-            temp.append(" ")  # Ajoute chaque element à la liste coupé a l'espace
-            for j in i:
-                if j not in signes.values():  # Ajoute les caractères non spéciaux
-                    temp.append(j)
-
-        del temp[0]  # Supprime l'espace ajouté au début de la liste
-
-        """Calcule le nombre total d'apparition du mot"""
-        chaine = ""  # Création de la chaine vide qui sera split par l'espace
-
-        for i in temp:  # Parcours la liste temp pour la traduire en chaine de caractère
-            chaine += i
-        final = chaine.split(" ")  # Coupe la chaine de caractère à l'espace pour en refaire uen liste
+        # Nettoyeage de la formule
+        for i in formule:
+            if i not in signes.values():  # Si non spécial ajoute a trigger
+                trigger += i
+            else:
+                if trigger != "":  # si Trigger différent de vide ajoute a la liste et la réinitialise
+                    final.append(trigger)
+                    trigger = ""
 
         """Ajoute les listes de noms à un dictionnaire"""
         nomsDansFormules[clea] = final

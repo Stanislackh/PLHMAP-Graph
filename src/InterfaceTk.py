@@ -10,11 +10,9 @@ from tkinter import messagebox
 from tkinter import ttk
 from tkinter import colorchooser
 import tkinter.filedialog
-import Coocurrence
+import AncienneMethode
 import NouvelleMethode
 
-
-# import AlgoTestFormuleSandBox
 
 # Centre la fenetre
 def geoliste(g):
@@ -134,14 +132,12 @@ def afficheBouton(fenetre):
         for i in range(len(boxs)):
             boxs[i].select()
             listeV[i].set(1)
-            print(listeV[i].get())
 
     # Décoche toutes les checkboxes
     def decocheTout(boxs=listeCheckboxes):
         for i in range(len(boxs)):
             boxs[i].deselect()
             listeV[i].set(0)
-            print(listeV[i].get())
 
     # Check all checkboxes
     boutonCheckAll = Button(fenetre, text="Check All", command=cocheTout, width=15, height=5)
@@ -153,17 +149,32 @@ def afficheBouton(fenetre):
 
     # Calcul avec le graphe valué
     boutonGrapheValue = Button(fenetre, text="Graphe value",
-                               command=lambda: [recupererCheckboxCheck(), fenetreGrpahe()],
+                               command=lambda: [NouvelleMethode.calculEG(recupererCheckboxCheck()), fenetreGrpahe()],
                                width=15, height=5)
     boutonGrapheValue.pack(side=RIGHT, padx=5, pady=1)
 
     # Calcul avec la Coocurence
-    boutonCooccurrence = Button(fenetre, text="Coocurrence", command=fenetreGrpahe, width=15, height=5)
+    boutonCooccurrence = Button(fenetre, text="Coocurrence",
+                                command=lambda: [AncienneMethode.coocurrence(recupererCheckboxCheck()),
+                                                 fenetreGrpahe()],
+                                width=15, height=5)
     boutonCooccurrence.pack(side=RIGHT, padx=5, pady=1)
 
     # Fonction qui remplis les onglets
 
 
+# Fonction pour récupére la liste des checkboxes cochées
+def recupererCheckboxCheck():
+    listeCheck = []
+
+    for i in range(len(listeV)):
+        if listeV[i].get() == 1:
+            listeCheck.append(listeLabels[i])
+    messagebox.showinfo("Formules sélectionnées", str(listeCheck))  # Affiche la liste des formules selectionnées
+    return listeCheck
+
+
+# Fonction pour remplir les onglets
 def remplirOnglet(canvas, nomFichier):
     global listeCheckboxes
     global listeV
@@ -236,6 +247,7 @@ def fenetreAccueil():
     fenAccueil.mainloop()
 
 
+# Création de la fenêtre principale
 def fenetrePrincipale():
     global fenPrincipale
 
@@ -257,8 +269,7 @@ def fenetrePrincipale():
     fenPrincipale.mainloop()
 
 
-# Ouvrre le fenêtre pour la coocurence
-
+# Ouvre le fenêtre pour la coocurence ou le graphe valué
 def fenetreGrpahe():
     fenCoo = Toplevel()
     fenCoo.geometry("500x500")
@@ -281,16 +292,6 @@ def fenetreGrpahe():
     menuOptions.add_command(label="Exporter Graphe", command="")
 
     fenCoo.mainloop()
-
-
-def recupererCheckboxCheck():  # Récupére la liste des checkboxes cochées
-    listeCheck = []
-
-    for i in range(len(listeV)):
-        if listeV[i].get() == 1:
-            listeCheck.append(listeLabels[i])
-    messagebox.showinfo("Formules sélectionnées", str(listeCheck))
-    return listeCheck
 
 
 if __name__ == "__main__":

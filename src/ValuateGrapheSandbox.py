@@ -31,8 +31,9 @@ ff1 = "([Kurios#Zeus]+Hêra)#Epêkoos"
 ff2 = "[Theos#Soter]#(Artemis+Apollon)"
 ff3 = "[([Isis# Sôtêr]/Astartê/[Aphroditê#Euploia])#Epêkoos] + [Erôs/Harpokratês/Apollôn]"
 ff4 = "[Apollôn#Puthios]+[Apollôn#Kedrieus]"
+ff5 = "38#[45#(46#47)]"
 listeFormules2 = [f1, f2, f3, f4, f5, f7]
-listeFormules = [ff1, ff4]
+listeFormules = [ff5]
 
 signes = {
     1: "+",
@@ -137,8 +138,8 @@ def superAlgo(listeFormules):
                 if formule[element] == '[' and couple1 == "":  # Si l'element est un crochet ouvert
                     crochet_ouvert += 1  # Ajoute 1 aux crochets ouvert
                     if crochet_ouvert >= 1:  # Si le nobre de crochets ouvert est > 1 ajoute 3 sinon mets la force a 3
-                        force_lien = crochet_ouvert * 3  # Donne au lien le nombre de crochet * 3
-                # elif formule[element] == '[' and
+                        # Donne au lien le nombre de crochet * 3
+                        force_lien = crochet_ouvert * 3 + parenthese_ouverte * 2
                 elif formule[element] == '[':  # Si l'element est un crochet et que couple1 ets non vide rajoute 1
                     crochet_ouvert += 1
 
@@ -163,7 +164,7 @@ def superAlgo(listeFormules):
                 if formule[element] == '(' and couple1 == "":  # Si l'élement est une parenthèse ouvrante
                     parenthese_ouverte += 1  # Ajoute 1 aux parenthèses ouvrantes
                     if parenthese_ouverte >= 1:  # Si parenthèses ouvrant est > 1  force = 2 * nb parenthèses
-                        force_lien = parenthese_ouverte * 2
+                        force_lien = parenthese_ouverte * 2 + crochet_ouvert * 3
                     else:  # Sinon met la force à 2
                         force_lien = 2
                 elif formule[element] == '(':  # Si parenthèse ouvrante et couple1 non vide ajoute 1
@@ -234,13 +235,17 @@ def superAlgo(listeFormules):
                         if force_lien > dico_paire_force[(couple1, couple2)]:
                             dico_paire_force[(couple1, couple2)] = force_lien
 
+            print("dico force")
+            print(dico_paire_force)
             # Ecrit dans le CSV le resultat
-            ecrireCSV(dico_paire_force, elementCompte)
+            # ecrireCSV(dico_paire_force, elementCompte)
             repeat = ""
 
         else:
+            print("dico force 2")
+            print(dico_paire_force)
             # Ecrit dans le CSV le resultat
-            ecrireCSV(dico_paire_force, elementCompte)
+            # ecrireCSV(dico_paire_force, elementCompte)
 
 
 def ecrireCSV(dicoPaireForce, elementCompte):  # Ecris le CSV avec la nouvelle méthode de calcul

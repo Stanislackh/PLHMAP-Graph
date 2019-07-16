@@ -25,7 +25,8 @@ signes = {
 date = datetime.now()
 datestr = date.strftime('_%Y-%m-%d-%H-%M-%S')
 
-#Récupération des formules selectionnées
+
+# Récupération des formules selectionnées
 
 
 # Prépare les formules pour le traitement
@@ -88,8 +89,8 @@ def calculEG(listeFormules):
                 if formule[element] == '[' and couple1 == "":  # Si l'element est un crochet ouvert
                     crochet_ouvert += 1  # Ajoute 1 aux crochets ouvert
                     if crochet_ouvert >= 1:  # Si le nobre de crochets ouvert est > 1 ajoute 3 sinon mets la force a 3
-                        force_lien = crochet_ouvert * 3  # Donne au lien le nombre de crochet * 3
-                # elif formule[element] == '[' and
+                        # Donne au lien le nombre de crochet * 3
+                        force_lien = crochet_ouvert * 3 + parenthese_ouverte * 2
                 elif formule[element] == '[':  # Si l'element est un crochet et que couple1 ets non vide rajoute 1
                     crochet_ouvert += 1
 
@@ -114,7 +115,7 @@ def calculEG(listeFormules):
                 if formule[element] == '(' and couple1 == "":  # Si l'élement est une parenthèse ouvrante
                     parenthese_ouverte += 1  # Ajoute 1 aux parenthèses ouvrantes
                     if parenthese_ouverte >= 1:  # Si parenthèses ouvrant est > 1  force = 2 * nb parenthèses
-                        force_lien = parenthese_ouverte * 2
+                        force_lien = parenthese_ouverte * 2 + crochet_ouvert * 3
                     else:  # Sinon met la force à 2
                         force_lien = 2
                 elif formule[element] == '(':  # Si parenthèse ouvrante et couple1 non vide ajoute 1
@@ -197,7 +198,7 @@ def calculEG(listeFormules):
 # Fonction écriture du CSV
 def ecrireCSV(dicoPaireForce, elementCompte):  # Ecris le CSV avec la nouvelle méthode de calcul
     id = 1  # Id pour les paires
-    if os.path.exists('GrapheValueEdges' + datestr + '.csv'):  # Si le fichier existe ecrit a la suite
+    if os.path.exists('CalculEG_Edges' + datestr + '.csv'):  # Si le fichier existe ecrit a la suite
         with open('GrapheValueEdges' + datestr + '.csv', 'a', newline='', encoding='windows-1252') as csvfile:
             writer = csv.writer(csvfile, delimiter=',')
             writer.writerow(("", "", "", ""))
@@ -205,7 +206,7 @@ def ecrireCSV(dicoPaireForce, elementCompte):  # Ecris le CSV avec la nouvelle m
                 writer.writerow((cle[0], cle[1], id, valeur))
                 id += 1
 
-        with open('GrapheValueNodes' + datestr + '.csv', 'a', newline='', encoding='windows-1252') as csvfile:
+        with open('CalculEG_Nodes' + datestr + '.csv', 'a', newline='', encoding='windows-1252') as csvfile:
             writer = csv.writer(csvfile, delimiter=',')
             writer.writerow(('', '', ''))
 
@@ -216,7 +217,7 @@ def ecrireCSV(dicoPaireForce, elementCompte):  # Ecris le CSV avec la nouvelle m
     else:  # Si le fichier n'existe pas le crée
 
         # Correspond aux arcs dans Gephi
-        with open('GrapheValueEdges' + datestr + '.csv', 'w', newline='', encoding='windows-1252') as csvfile:
+        with open('CalculEG_Edges' + datestr + '.csv', 'w', newline='', encoding='windows-1252') as csvfile:
             writer = csv.writer(csvfile, delimiter=',')
             writer.writerow(("Source", "Target", "Id", "Force_lien"))
 
@@ -224,7 +225,7 @@ def ecrireCSV(dicoPaireForce, elementCompte):  # Ecris le CSV avec la nouvelle m
                 writer.writerow((cle[0], cle[1], id, valeur))
                 id += 1
 
-        with open('GrapheValueNodes' + datestr + '.csv', 'w', newline='', encoding='windows-1252') as csvfile:
+        with open('CalculEG_Nodes' + datestr + '.csv', 'w', newline='', encoding='windows-1252') as csvfile:
             writer = csv.writer(csvfile, delimiter=',')
             writer.writerow(('Nodes', 'nom', 'Label',))
 

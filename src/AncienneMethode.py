@@ -47,8 +47,7 @@ def creationDicoDynamique(nomsDansFormules):
 
 
 # Permet de calculer la Coocurence dans les formules
-def coocurenceListe(liste):
-    # Compte le poids des noeuds
+def coocurrence(liste):
     poids = {}  # Dictionnaire qui indique le nombre total d'apparition du mot
     cle = 0  # Clé pour le dictionnaire à incrémenter
     noeud = {}  # Dictionnaire qui indique le nombre de formules où un mot est mentionné (unique)
@@ -58,30 +57,20 @@ def coocurenceListe(liste):
     # Lit pour chaque élément de la liste
     for element in liste:  # Applique pour chaque élément de la liste le traitement de la formule
         formule = element
-        res = formule.split(" ")  # Permet de découper la formule en supprimant les espaces
 
-        for i in res:
-            for j in signes.values():  # Regarde dans le dictionnaire des signes si il apparait
-                if i == j:
-                    res.remove(j)  # Supprime les signes spéciaux des formules
-        temp = []  # Liste temporaire
+        trigger = ""  # Pour récupérer les noms
+        final = []  # Liste qui récupère les noms
 
-        for i in res:  # Permet de parcourir les élément de la liste res
-            temp.append(" ")  # Ajoute chaque element à la liste coupé a l'espace
-            for j in i:
-                if j not in signes.values():  # Ajoute les caractères non spéciaux
-                    temp.append(j)
+        # Nettoyeage de la formule
+        for i in formule:
+            if i not in signes.values():  # Si non spécial ajoute a trigger
+                trigger += i
+            else:
+                if trigger != "":  # si Trigger différent de vide ajoute a la liste et la réinitialise
+                    final.append(trigger)
+                    trigger = ""
 
-        del temp[0]  # Supprime l'espace ajouté au début de la liste
-
-        # Calcule le nombre total d'apparition du mot
-        chaine = ""  # Création de la chaine vide qui sera split par l'espace
-
-        for i in temp:  # Parcours la liste temp pour la traduire en chaine de caractère
-            chaine += i
-        final = chaine.split(" ")  # Coupe la chaine de caractère à l'espace pour en refaire uen liste
-
-        # Ajoute les liste de noms au dictionnaire
+        """Ajoute les listes de noms à un dictionnaire"""
         nomsDansFormules[clea] = final
         clea += 1
         compte = {}.fromkeys(set(final), 0)  # Définit le compteur pour chaque mot présent
@@ -93,7 +82,7 @@ def coocurenceListe(liste):
         poids[cle] = compte  # Ajoute le nombre de fois qu'apparait un nom dans chaque formule
         cle += 1  # Incrémente la clé du dictionnaire de stockage
 
-    # Calcul pour les arcs
+    """Calcul pour les arcs"""
     arc = {}  # Initialise le dictionnaire avec sa clé
     key = 0
 
@@ -103,7 +92,8 @@ def coocurenceListe(liste):
 
     weightEdges = nomsNombres(arc)  # Appel de la fonction qui transforme les couples en Sources Targets
 
-    # Calcul pour savoir le nombre d'apparition du nom
+    """ Calcul pour savoir le nombre d'apparition du nom"""
+
     apparait = {}  # nombre total d'apparition
 
     for elem, val in poids.items():  # Regarde dans le Dictionnaire
@@ -113,7 +103,8 @@ def coocurenceListe(liste):
             else:
                 apparait[nom] += nombre  # Ajoute la valeur si le nom existe déjà
 
-    # Calcul le nombre de fois qu'un nom apparait dans toutes les formules
+    """Calcul le nombre de fois qu'un nom apparait dans toutes les formules"""
+
     for element in poids.values():  # Parcous le dictionnaire de dictionnaire
         for i in element:  # Parcours chaque élémément du dictionnaire
             if i not in noeud.keys():  # Regarde si un élement est dans la liste sinon l'ajoute
@@ -121,7 +112,8 @@ def coocurenceListe(liste):
             else:
                 noeud[i] += 1  # Incrémente la valeur si celui ci est présent
 
-    # Ecrit dans un csv les résultats
+    """Ecrit dans un csv les résultats en appelant la fonction csvGraphes"""
+
     csvGraphes(noeud, apparait, weightEdges)  # les 3 dictionnaires associés en paramètres
 
     return noeud, poids, arc  # Revoie le dictionnaire avec les nombres d'apparition des noms par formules et le total
@@ -187,16 +179,16 @@ def comptePoidsArc(couplesId):  # Compte le nombre de fois où le couple apparaît
 # Fonction d'écriture dans le CSV
 def csvGraphes(noeud, apparait, arc):
     if os.path.exists(
-            "Nodes" + datestr + ".csv"):  # Si le fichier existe il est supprimé pour en créer un nouveau
-        os.remove("Nodes" + datestr + ".csv")
+            "Coocurrence_Nodes" + datestr + ".csv"):  # Si le fichier existe il est supprimé pour en créer un nouveau
+        os.remove("Coocurrence_Nodes" + datestr + ".csv")
         nodes(noeud, apparait)  # Appelle la fonction qui écrit le CSV pour les Noeuds
     else:
         nodes(noeud, apparait)  # Appelle la fonction qui écrit le CSV pour les Noeuds
 
     """Test écriture du CSV pour les Arcs"""
     if os.path.exists(
-            "Edges" + datestr + ".csv"):  # Si le fichier existe il est supprimé pour en créer un nouveau
-        os.remove("Edges" + datestr + ".csv")
+            "Coocurrence_Edges" + datestr + ".csv"):  # Si le fichier existe il est supprimé pour en créer un nouveau
+        os.remove("Coocurrence_Edges" + datestr + ".csv")
         edges(arc)  # Appelle la fonction qui écrit le CSV pour les Arcs
     else:
         edges(arc)  # Appelle la fonction qui écrit le CSV pour les Arcs
@@ -204,8 +196,8 @@ def csvGraphes(noeud, apparait, arc):
 
 # Fonction d'écriture des noeuds dans le CSV
 def nodes(noeud, apparait):  # faire une option de nommage du fichier
-    with open("Nodes" + datestr + ".csv", 'w', newline='', encoding='windows-1252') as csvfile:
-        writer = csv.writer(csvfile, delimiter=';')
+    with open("Coocurrence_Nodes" + datestr + ".csv", 'w', newline='', encoding='windows-1252') as csvfile:
+        writer = csv.writer(csvfile, delimiter=',')
         writer.writerow(("Nodes", "Id", "Label", "Weight", "Weight2"))  # Ecriture en-tête du fichier
 
         tempElem = []  # listes temporaires
@@ -231,8 +223,8 @@ def nodes(noeud, apparait):  # faire une option de nommage du fichier
 
 # Fonction d'écriture des arcs dans le CSV
 def edges(arc):  # faire une option de nommage du fichier
-    with open("Edges" + datestr + ".csv", 'w', newline='', encoding='windows-1252') as csvfile:
-        writer = csv.writer(csvfile, delimiter=';')
+    with open("Coocurrence_Edges" + datestr + ".csv", 'w', newline='', encoding='windows-1252') as csvfile:
+        writer = csv.writer(csvfile, delimiter=',')
         writer.writerow(("Source", "Target", "Type", "Id", "libelle", "Weight"))  # Ecriture en-tête du fichier
 
         id = 0  # Clé pour l'id
