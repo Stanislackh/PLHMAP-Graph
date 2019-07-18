@@ -10,8 +10,10 @@ from tkinter import messagebox
 from tkinter import ttk
 from tkinter import colorchooser
 import tkinter.filedialog
+
 import AncienneMethode
 import NouvelleMethode
+import pyvis_network_graph
 
 
 # Centre la fenetre
@@ -149,7 +151,8 @@ def afficheBouton(fenetre):
 
     # Calcul avec le graphe valué
     boutonGrapheValue = Button(fenetre, text="Graphe value",
-                               command=lambda: [NouvelleMethode.calculEG(recupererCheckboxCheck()), fenetreGrpahe()],
+                               command=lambda: [NouvelleMethode.calculEG(recupererCheckboxCheck()),
+                                                pyvis_network_graph.create_graph(NouvelleMethode.nomfichierEdge)],
                                width=15, height=5)
     boutonGrapheValue.pack(side=RIGHT, padx=5, pady=1)
 

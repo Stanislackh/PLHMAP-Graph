@@ -64,6 +64,7 @@ def nettoyageFormules(listeformules):
 
 # Algorithme de traitement des formules
 def calculEG(listeFormules):
+    global dico_paire_force
     listePrete = nettoyageFormules(listeFormules)  # Prépare les formules pour le traitement
     # creationDicoDynamique(listeFormules)  # Crée un dictionnaire avec les noms
 
@@ -197,11 +198,14 @@ def calculEG(listeFormules):
 
 # Fonction écriture du CSV
 def ecrireCSV(dicoPaireForce, elementCompte):  # Ecris le CSV avec la nouvelle méthode de calcul
+    global nomfichierEdge
+
+
     id = 1  # Id pour les paires
     if os.path.exists('CalculEG_Edges' + datestr + '.csv'):  # Si le fichier existe ecrit a la suite
-        with open('GrapheValueEdges' + datestr + '.csv', 'a', newline='', encoding='windows-1252') as csvfile:
+        with open('CalculEG_Edges' + datestr + '.csv', 'a', newline='', encoding='windows-1252') as csvfile:
             writer = csv.writer(csvfile, delimiter=',')
-            writer.writerow(("", "", "", ""))
+            # writer.writerow(("", "", "", ""))
             for cle, valeur in dicoPaireForce.items():
                 writer.writerow((cle[0], cle[1], id, valeur))
                 id += 1
@@ -224,6 +228,8 @@ def ecrireCSV(dicoPaireForce, elementCompte):  # Ecris le CSV avec la nouvelle m
             for cle, valeur in dicoPaireForce.items():
                 writer.writerow((cle[0], cle[1], id, valeur))
                 id += 1
+            nomfichierEdge = 'CalculEG_Edges' + datestr
+            print(nomfichierEdge)
 
         with open('CalculEG_Nodes' + datestr + '.csv', 'w', newline='', encoding='windows-1252') as csvfile:
             writer = csv.writer(csvfile, delimiter=',')

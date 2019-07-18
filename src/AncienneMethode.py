@@ -198,7 +198,7 @@ def csvGraphes(noeud, apparait, arc):
 def nodes(noeud, apparait):  # faire une option de nommage du fichier
     with open("Coocurrence_Nodes" + datestr + ".csv", 'w', newline='', encoding='windows-1252') as csvfile:
         writer = csv.writer(csvfile, delimiter=',')
-        writer.writerow(("Nodes", "Id", "Label", "Weight", "Weight2"))  # Ecriture en-tête du fichier
+        writer.writerow(("Nodes", "Id", "Label", "Force_lien", "Weight2"))  # Ecriture en-tête du fichier
 
         tempElem = []  # listes temporaires
         tempCle = []
@@ -225,7 +225,7 @@ def nodes(noeud, apparait):  # faire une option de nommage du fichier
 def edges(arc):  # faire une option de nommage du fichier
     with open("Coocurrence_Edges" + datestr + ".csv", 'w', newline='', encoding='windows-1252') as csvfile:
         writer = csv.writer(csvfile, delimiter=',')
-        writer.writerow(("Source", "Target", "Type", "Id", "libelle", "Weight"))  # Ecriture en-tête du fichier
+        writer.writerow(("Source", "Target", "Force_lien", "Type", "Id", "libelle"))  # Ecriture en-tête du fichier
 
         id = 0  # Clé pour l'id
         for cle, element in arc.items():
