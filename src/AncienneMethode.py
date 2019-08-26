@@ -223,6 +223,7 @@ def nodes(noeud, apparait):  # faire une option de nommage du fichier
 
 # Fonction d'écriture des arcs dans le CSV
 def edges(arc):  # faire une option de nommage du fichier
+    global nameFileEdge
     with open("Coocurrence_Edges" + datestr + ".csv", 'w', newline='', encoding='windows-1252') as csvfile:
         writer = csv.writer(csvfile, delimiter=',')
         writer.writerow(("Source", "Target", "Force_lien", "Type", "Id", "libelle"))  # Ecriture en-tête du fichier
@@ -231,3 +232,5 @@ def edges(arc):  # faire une option de nommage du fichier
         for cle, element in arc.items():
             writer.writerow((cle[0], cle[1], "Undirected", id, "", element))
             id += 1
+
+        nameFileEdge = 'Coocurrence_Edges' + datestr

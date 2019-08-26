@@ -4,69 +4,22 @@
 
 import csv
 import os
-from datetime import datetime
+import VerificationFormules
 
-# Liste des signes spéciaux
-signes = {
-    1: "+",
-    2: "/",
-    3: "#",
-    4: "(",
-    5: ")",
-    6: "[",
-    7: "]",
-    8: "=",
-    9: " ",
-    10: "{",
-    11: "}"
-}
+from datetime import datetime
 
 # Récupère l'heure et la date du jour
 date = datetime.now()
 datestr = date.strftime('_%Y-%m-%d-%H-%M-%S')
 
-
-# Récupération des formules selectionnées
-
-
-# Prépare les formules pour le traitement
-def nettoyageFormules(listeformules):
-    listeInter = []
-
-    trigger = ""  # Pour reformer le nom
-
-    for indice in range(len(listeformules)):  # Regarde pour la longueur de la liste de formule
-        listeSplit = []  # Stockage de la formule splittée
-
-        for j in listeformules[indice]:  # Pour chaque élément de la formule
-            listeSplit.append(j)  # L'ajoute a la liste
-        listeInter.append(listeSplit)  # La listes est ajoutée a la liste
-
-    listeSuperPropre = []  # Liste de fin
-
-    for i in listeInter:  # Pour la liste intermédiaire
-
-        listePropre = []  # Initialise la liste tampons
-        for j in i:  # Pour chaque élément dans la liste
-            if j in signes.values():  # Si j est un caractère spécial
-                if trigger != "":  # Si trigger est pas vide ajoute trigger à la liste
-                    listePropre.append(trigger)
-                    trigger = ""  # Réinitialise Trigger
-                listePropre.append(j)  # Ajoute à la liste
-            else:
-                trigger += j  # trigger reçoit la caractène non spécial
-        listePropre.append(trigger)
-        trigger = ""  # Réinitialise trigger
-        listeSuperPropre.append(listePropre)  # Ajoute à la liste de fin
-
-    return listeSuperPropre  # Renvoie la liste de fin
+# Liste
+lise = ["{joe}#{kolt}#({fred}#{derg}))"]
 
 
 # Algorithme de traitement des formules
 def calculEG(listeFormules):
     global dico_paire_force
-    listePrete = nettoyageFormules(listeFormules)  # Prépare les formules pour le traitement
-    # creationDicoDynamique(listeFormules)  # Crée un dictionnaire avec les noms
+    listePrete = VerificationFormules.nettoyageFormules(listeFormules)  # Prépare les formules pour le traitement
 
     for formule in listePrete:
         couple1 = ""  # Permier élement pour le tuple
@@ -138,7 +91,8 @@ def calculEG(listeFormules):
                     else:
                         force_lien = 1
 
-                if formule[element] not in signes.values():  # Si element est pas un caracrère spécial
+                if formule[element] not in VerificationFormules.signes.values():
+                    # Si element est pas un caracrère spécial
                     if formule[element] not in elementCompte:  # L'ajoute a la liste
                         if couple1 == "":  # Si couple1 est vide ajoute l'element
                             couple1 = formule[element]
@@ -173,13 +127,15 @@ def calculEG(listeFormules):
                     parenthese_ouverte += 1
                     force_lien = parenthese_ouverte * 2
 
-                if formule[i] not in signes.values():  # Si rencontre une élément non spécial coupe la boucle
+                if formule[i] not in VerificationFormules.signes.values():
+                    # Si rencontre une élément non spécial coupe la boucle
                     break
 
             couple1 = formule[repeat]  # Couple1 recoit l'element répété
 
             for i in formule[repeat + 1:]:  # Parcours la boucle depuis l'élément répété
-                if i not in signes.values():  # Si l'élément est pas un caratère spécial couple2 = i
+                if i not in VerificationFormules.signes.values():
+                    # Si l'élément est pas un caratère spécial couple2 = i
                     couple2 = i
                 if couple1 != "" and couple2 != "":  # Si les 2 variables sont différente de vide
                     # Si le couple existe replace la valeur si elle est plus grande
@@ -199,7 +155,6 @@ def calculEG(listeFormules):
 # Fonction écriture du CSV
 def ecrireCSV(dicoPaireForce, elementCompte):  # Ecris le CSV avec la nouvelle méthode de calcul
     global nomfichierEdge
-
 
     id = 1  # Id pour les paires
     if os.path.exists('CalculEG_Edges' + datestr + '.csv'):  # Si le fichier existe ecrit a la suite
@@ -239,3 +194,7 @@ def ecrireCSV(dicoPaireForce, elementCompte):  # Ecris le CSV avec la nouvelle m
             for i in elementCompte:
                 writer.writerow((num, i, i))
                 num += 1
+
+
+if __name__ == "__main__":
+    VerificationFormules.checkNbParCroch(lise)

@@ -34,7 +34,7 @@ cas12 = "([Kurios # Zeus] + Hêra) # Epêkoos"  # OK
 cas13 = "à mes dames # ([[à la déesse # puissante] # Isis] / [la déesse # Ashtart]) + [aux dieux # qui]"
 # Cas 13 Explose et j'arrive pas à lire ...
 
-listeCas2 = [cas9]  # Fonctionne pas
+listeCas2 = [cas10]  # Fonctionne pas
 
 listeCas = [cas1, cas2, cas3, cas4, cas5, cas6, cas7, cas8, cas9, cas10, cas11, cas12, cas13]  # Fonctionne
 
@@ -595,5 +595,5 @@ def allInOne(listedeListe):
 
 
 if __name__ == "__main__":
-    splitPropre(listeCas)
+    splitPropre(listeCas2)
     # allInOne(cas1)
