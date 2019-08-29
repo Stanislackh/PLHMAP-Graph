@@ -201,7 +201,7 @@ def afficheBouton(fenetre):
 
     # Bouton qui relance le programme
     ButtonReset = Button(fenetre, text="RESET",
-                         command=lambda: [resetVariableGlobal(), fenetre.destroy(), fenetreAccueil()],
+                         command=lambda: [fenetre.destroy(), fenetreAccueil()],
                          width=10, height=5)
     ButtonReset.pack(side=RIGHT, padx=5, pady=1)
 
@@ -272,26 +272,24 @@ def choixCouleur():
     print(couleur)
 
 
-# Reset des varaibles globales
-def resetVariableGlobal():
-    listeCheckboxes = []  # Les boxes
-    listeValeurs = []  # les valeurs
-    listeLabels = []  # Les formules
-
-    listeNomFichiers = []
-    fileName = []
-    nomOnglet = []
-
-    listeCheck = []
-    NouvelleMethode.dico_paire_force = {}
-    if not os.path.exists(NouvelleMethode.nomfichierEdge + ".csv"):
-        fenetreAccueil()
+# # Reset des varaibles globales
+# def resetVariableGlobal():
+#     listeCheckboxes = []  # Les boxes
+#     listeValeurs = []  # les valeurs
+#     listeLabels = []  # Les formules
+#
+#     listeNomFichiers = []
+#     fileName = []
+#     nomOnglet = []
+#
+#     listeCheck = []
+#     if not os.path.exists(NouvelleMethode.nomfichierEdge + ".csv"):
+#         fenetreAccueil()
 
 
 # Création de la fenêtre d'accueil
 def fenetreAccueil():
     global fenAccueil
-
     # Création de la fenêtre
     fenAccueil = Tk()
     fenAccueil.geometry("600x600")
@@ -366,7 +364,6 @@ def fenetrePrincipale():
     #
     #     fenCoo.mainloop()
 
-    fenetreAccueil()
 
 
 if __name__ == "__main__":

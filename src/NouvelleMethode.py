@@ -153,16 +153,23 @@ def calculEG(listeFormules):
 def ecrireCSV(dicoPaireForce, elementCompte):  # Ecris le CSV avec la nouvelle méthode de calcul
     global nomfichierEdge
 
+    # Récupère l'heure et la date du jour
+    date = datetime.now()
+    datestr = date.strftime('_%Y-%m-%d-%H-%M-%S')
+
+    nomfichierEdge = 'CSVTraiteMAP/CalculEG_Edges' + datestr
+
     id = 1  # Id pour les paires
     if os.path.exists('CSVTraiteMAP/CalculEG_Edges' + datestr + '.csv'):  # Si le fichier existe ecrit a la suite
-        nomfichierEdge = 'CSVTraiteMAP/CalculEG_Edges' + datestr
         with open('CSVTraiteMAP/CalculEG_Edges' + datestr + '.csv', 'a', newline='', encoding='utf-8') as csvfile:
+            
+            nomfichierEdge = 'CSVTraiteMAP/CalculEG_Edges' + datestr
+
             writer = csv.writer(csvfile, delimiter=',')
-            writer.writerow(("Source", "Target", "Id", "Force_lien"))
+            # writer.writerow(("Source", "Target", "Id", "Force_lien"))
             for cle, valeur in dicoPaireForce.items():
                 writer.writerow((cle[0], cle[1], id, valeur))
                 id += 1
-
 
         with open('CSVTraiteMAP/CalculEG_Nodes' + datestr + '.csv', 'a', newline='', encoding='utf-8') as csvfile:
             writer = csv.writer(csvfile, delimiter=',')
@@ -177,14 +184,15 @@ def ecrireCSV(dicoPaireForce, elementCompte):  # Ecris le CSV avec la nouvelle m
         if not os.path.exists('CSVTraiteMAP'):  # Crée le dossier qui contiendra les fichiers traités
             os.makedirs('CSVTraiteMAP')
         with open('CSVTraiteMAP/CalculEG_Edges' + datestr + '.csv', 'w', newline='', encoding='utf-8') as csvfile:
+
+            nomfichierEdge = 'CSVTraiteMAP/CalculEG_Edges' + datestr
+
             writer = csv.writer(csvfile, delimiter=',')
             writer.writerow(("Source", "Target", "Id", "Force_lien"))
 
             for cle, valeur in dicoPaireForce.items():
                 writer.writerow((cle[0], cle[1], id, valeur))
                 id += 1
-
-            nomfichierEdge = 'CSVTraiteMAP/CalculEG_Edges' + datestr
 
         with open('CSVTraiteMAP/CalculEG_Nodes' + datestr + '.csv', 'a', newline='', encoding='utf-8') as csvfile:
             writer = csv.writer(csvfile, delimiter=',')

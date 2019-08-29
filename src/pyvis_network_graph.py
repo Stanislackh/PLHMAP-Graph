@@ -31,10 +31,10 @@ def create_graph(resultCSV):
         map_network.add_node(dst, dst, title=str(dst))
         map_network.add_edge(src, dst, value=str(w))
 
-    voisins = map_network.get_adj_list()
-
-    for info in map_network.nodes:
-        print(info)
+    # voisins = map_network.get_adj_list()
+    #
+    # for info in map_network.nodes:
+    #     print(info)
         # info['title'] += " Valeurs:<br>" + "<br>".join(voisins[info["value"]])
 
     map_network.show_buttons(filter_=['nodes', 'edges', 'physics'])
