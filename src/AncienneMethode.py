@@ -1,4 +1,4 @@
-# -- coding: windows-1252 --
+# -- coding: utf-8 --
 # Created by Slackh
 # Github : https://github.com/Stanislackh
 
@@ -7,7 +7,9 @@ import os
 from datetime import datetime
 from collections import Counter
 
-# Liste des signes spéciaux
+"""nomsNombres : Ã  modifier la cle a la place de la valeur pour gephi dans la boucle ligne 158 et 160"""
+
+# Liste des signes spÃ©ciaux
 signes = {
     1: "+",
     2: "/",
@@ -22,68 +24,71 @@ signes = {
     11: "}"
 }
 
-# Récupère l'heure et la date du jour
+# RÃ©cupÃ¨re l'heure et la date du jour
 date = datetime.now()
 datestr = date.strftime('_%Y-%m-%d-%H-%M-%S')
 
 
-# Fonction qui permet de créer le dictionnaire des noms dynamiquement
+# Fonction qui permet de crÃ©er le dictionnaire des noms dynamiquement
 def creationDicoDynamique(nomsDansFormules):
     global dicoNoms
     global cleDico
 
     dicoNoms = {}  # Dictionaire des noms
-    cleDico = 0  # Clé pour le dictionnaire
+    cleDico = 0  # ClÃ© pour le dictionnaire
 
-    for i in nomsDansFormules.values():  # Pour chaque nom dans triée dans les formules
-        for element in i:  # Pour chaque élément dans la liste
-            if element in dicoNoms.values():  # Si l l'élément est dans da liste pass Sinon l'ajoute
+    for i in nomsDansFormules.values():  # Pour chaque nom dans triÃ©e dans les formules
+        for element in i:  # Pour chaque Ã©lÃ©ment dans la liste
+            if element in dicoNoms.values():  # Si l l'Ã©lÃ©ment est dans da liste pass Sinon l'ajoute
                 pass
             else:
                 dicoNoms[cleDico] = element
                 cleDico += 1
-
     return dicoNoms  # Renvoie le dictionnaire
 
 
 # Permet de calculer la Coocurence dans les formules
 def coocurrence(liste):
     poids = {}  # Dictionnaire qui indique le nombre total d'apparition du mot
-    cle = 0  # Clé pour le dictionnaire à incrémenter
-    noeud = {}  # Dictionnaire qui indique le nombre de formules où un mot est mentionné (unique)
+    cle = 0  # ClÃ© pour le dictionnaire Ã  incrÃ©menter
+    noeud = {}  # Dictionnaire qui indique le nombre de formules oÃ¹ un mot est mentionnÃ© (unique)
     nomsDansFormules = {}  # Dictionnaire pour voir les relations entre les mots
-    clea = 0  # Clé pour les arcs
+    clea = 0  # ClÃ© pour les arcs
 
-    # Lit pour chaque élément de la liste
-    for element in liste:  # Applique pour chaque élément de la liste le traitement de la formule
+    # Lit pour chaque Ã©lÃ©ment de la liste
+    for element in liste:  # Applique pour chaque Ã©lÃ©ment de la liste le traitement de la formule
         formule = element
 
-        trigger = ""  # Pour récupérer les noms
-        final = []  # Liste qui récupère les noms
+        trigger = ""  # Pour rÃ©cupÃ©rer les noms
+        final = []  # Liste qui rÃ©cupÃ¨re les noms
 
         # Nettoyeage de la formule
         for i in formule:
-            if i not in signes.values():  # Si non spécial ajoute a trigger
+            if i not in signes.values():  # Si non spÃ©cial ajoute a trigger
                 trigger += i
             else:
-                if trigger != "":  # si Trigger différent de vide ajoute a la liste et la réinitialise
+                if trigger != "":  # si Trigger diffÃ©rent de vide ajoute a la liste et la rÃ©initialise
                     final.append(trigger)
                     trigger = ""
 
-        """Ajoute les listes de noms à un dictionnaire"""
+        """Ajoute les listes de noms Ã  un dictionnaire"""
+        if trigger != "":
+            final.append(trigger)
+            trigger = ""
+
         nomsDansFormules[clea] = final
         clea += 1
-        compte = {}.fromkeys(set(final), 0)  # Définit le compteur pour chaque mot présent
+        compte = {}.fromkeys(set(final), 0)  # DÃ©finit le compteur pour chaque mot prÃ©sent
 
-        creationDicoDynamique(nomsDansFormules)  # Crée le dictionnaire avec une clé par nom différent
+        creationDicoDynamique(nomsDansFormules)  # CrÃ©e le dictionnaire avec une clÃ© par nom diffÃ©rent
 
         for valeur in final:  # Compte le nombre d'occurence de mots dans la liste
             compte[valeur] += 1
         poids[cle] = compte  # Ajoute le nombre de fois qu'apparait un nom dans chaque formule
-        cle += 1  # Incrémente la clé du dictionnaire de stockage
+        cle += 1  # IncrÃ©mente la clÃ© du dictionnaire de stockage
 
     """Calcul pour les arcs"""
-    arc = {}  # Initialise le dictionnaire avec sa clé
+    arc = {}  # Initialise le dictionnaire avec sa clÃ©
     key = 0
 
     for element in nomsDansFormules.values():  # regarde dans le dictionnaires des noms dans les formules
@@ -99,22 +104,22 @@ def coocurrence(liste):
     for elem, val in poids.items():  # Regarde dans le Dictionnaire
         for nom, nombre in val.items():  # Ragarde dans le dictionnaire du dictionnaire
             if nom not in apparait:
-                apparait[nom] = nombre  # Ajoute le mot et sa valeur associée
+                apparait[nom] = nombre  # Ajoute le mot et sa valeur associÃ©e
             else:
-                apparait[nom] += nombre  # Ajoute la valeur si le nom existe déjà
+                apparait[nom] += nombre  # Ajoute la valeur si le nom existe dÃ©jÃ 
 
     """Calcul le nombre de fois qu'un nom apparait dans toutes les formules"""
 
     for element in poids.values():  # Parcous le dictionnaire de dictionnaire
-        for i in element:  # Parcours chaque élémément du dictionnaire
-            if i not in noeud.keys():  # Regarde si un élement est dans la liste sinon l'ajoute
-                noeud[i] = 1  # Ajoute l'élément et l'initialise a 1
+        for i in element:  # Parcours chaque Ã©lÃ©mÃ©ment du dictionnaire
+            if i not in noeud.keys():  # Regarde si un Ã©lement est dans la liste sinon l'ajoute
+                noeud[i] = 1  # Ajoute l'Ã©lÃ©ment et l'initialise a 1
             else:
-                noeud[i] += 1  # Incrémente la valeur si celui ci est présent
-
-    """Ecrit dans un csv les résultats en appelant la fonction csvGraphes"""
-
-    csvGraphes(noeud, apparait, weightEdges)  # les 3 dictionnaires associés en paramètres
+                noeud[i] += 1  # IncrÃ©mente la valeur si celui ci est prÃ©sent
+    print("arc")
+    print(arc)
+    """Ecrit dans un csv les rÃ©sultats en appelant la fonction csvGraphes"""
+    csvGraphes(noeud, apparait, weightEdges)  # les 3 dictionnaires associÃ©s en paramÃ¨tres
 
     return noeud, poids, arc  # Revoie le dictionnaire avec les nombres d'apparition des noms par formules et le total
 
@@ -122,7 +127,7 @@ def coocurrence(liste):
 # Couple les noms pour faire les arcs
 def couplesArcs(formule):
     listeNoms = []
-    for element in dicoNoms.values():  # récupère la liste de noms
+    for element in dicoNoms.values():  # rÃ©cupÃ¨re la liste de noms
         if element in formule:
             listeNoms.append(element)
 
@@ -132,10 +137,10 @@ def couplesArcs(formule):
     if dernierElemListe == 1:  # Si le nom est seul l'ajoute a la liste sinon fait les couples
         couples.append(listeNoms[0])
     else:
-        for i in range(dernierElemListe - 1):  # Pour chaque élément crée une paire avec les eléments suivants
+        for i in range(dernierElemListe - 1):  # Pour chaque Ã©lÃ©ment crÃ©e une paire avec les elÃ©ments suivants
             j = 0  # Initialise pour le tant que
             while j < dernierElemListe - 1:
-                # Vérifie que les noms soit différents et fait des paires uniques
+                # VÃ©rifie que les noms soit diffÃ©rents et fait des paires uniques
                 if listeNoms[i] != listeNoms[j + 1] and ((listeNoms[j + 1], listeNoms[i]) not in couples):
                     couples.append((listeNoms[i], listeNoms[j + 1]))
                 j += 1
@@ -151,86 +156,94 @@ def nomsNombres(dicoArc):
         for paire in element:
             for cle, valeur in dicoNoms.items():
                 if valeur == paire[0]:
-                    source.append(cle)
+                    source.append(valeur)
                 if valeur == paire[1]:
-                    target.append(cle)
+                    target.append(valeur)
 
     sourceTarget = []  # Liste initiale pour les couples d'Id
 
     for i in range(len(source)):  # Ajoute a la liste le nouveau couples d'Id
         sourceTarget.append((source[i], target[i]))
 
-    def getKey(item):  # Fonction interne pour faire le tri par le premier élement du tuple
+    print('source')
+    print(sourceTarget)
+
+    def getKey(item):  # Fonction interne pour faire le tri par le premier Ã©lement du tuple
         return item[0]
 
-    sourceTargetSorted = sorted(sourceTarget, key=getKey)  # Trie la liste par le premier élément
-    weightEdge = comptePoidsArc(sourceTargetSorted)  # Appelle la fonction qui compte le nombre d'itération identiques
+    sourceTargetSorted = sorted(sourceTarget, key=getKey)  # Trie la liste par le premier Ã©lÃ©ment
+    weightEdge = comptePoidsArc(sourceTargetSorted)  # Appelle la fonction qui compte le nombre d'itÃ©ration identiques
 
     return weightEdge
 
 
 # Compte le nombre d'occurence des paires de noms
-def comptePoidsArc(couplesId):  # Compte le nombre de fois où le couple apparaît
+def comptePoidsArc(couplesId):  # Compte le nombre de fois oÃ¹ le couple apparaÃ®t
 
     poidsArc = Counter(couplesId)
     return poidsArc
 
 
-# Fonction d'écriture dans le CSV
-def csvGraphes(noeud, apparait, arc):
-    if os.path.exists(
-            "Coocurrence_Nodes" + datestr + ".csv"):  # Si le fichier existe il est supprimé pour en créer un nouveau
-        os.remove("Coocurrence_Nodes" + datestr + ".csv")
-        nodes(noeud, apparait)  # Appelle la fonction qui écrit le CSV pour les Noeuds
+# Fonction d'Ã©criture dans le CSV
+def csvGraphes(noeud, apparait, weightEdges):
+    if os.path.exists("CSVTraiteMAPCooccurrence"):
+        nodes(noeud, apparait)  # Appelle la fonction qui Ã©crit le CSV pour les Noeuds
     else:
-        nodes(noeud, apparait)  # Appelle la fonction qui écrit le CSV pour les Noeuds
+        os.mkdir("CSVTraiteMAPCooccurrence")  # CrÃ©e le dossier qui contient les fichiers traitÃ©s
+        nodes(noeud, apparait)  # Appelle la fonction qui Ã©crit le CSV pour les Noeuds
 
-    """Test écriture du CSV pour les Arcs"""
-    if os.path.exists(
-            "Coocurrence_Edges" + datestr + ".csv"):  # Si le fichier existe il est supprimé pour en créer un nouveau
-        os.remove("Coocurrence_Edges" + datestr + ".csv")
-        edges(arc)  # Appelle la fonction qui écrit le CSV pour les Arcs
+    """Test Ã©criture du CSV pour les Arcs"""
+    if os.path.exists("CSVTraiteMAPCooccurrence"):
+        edges(weightEdges)  # Appelle la fonction qui Ã©crit le CSV pour les Arcs
     else:
-        edges(arc)  # Appelle la fonction qui écrit le CSV pour les Arcs
+        os.mkdir("CSVTraiteMAPCooccurrence")  # CrÃ©e le dossier qui contient les fichiers traitÃ©s
+        edges(weightEdges)  # Appelle la fonction qui Ã©crit le CSV pour les Arcs
 
 
-# Fonction d'écriture des noeuds dans le CSV
+# Fonction d'Ã©criture des noeuds dans le CSV
 def nodes(noeud, apparait):  # faire une option de nommage du fichier
-    with open("Coocurrence_Nodes" + datestr + ".csv", 'w', newline='', encoding='windows-1252') as csvfile:
+    with open("CSVTraiteMAPCooccurrence/Coocurrence_Nodes" + datestr + ".csv", 'a', newline='',
+              encoding='utf-8') as csvfile:
         writer = csv.writer(csvfile, delimiter=',')
-        writer.writerow(("Nodes", "Id", "Label", "Force_lien", "Weight2"))  # Ecriture en-tête du fichier
+        writer.writerow(("Nodes", "Id", "Label", "Force_lien", "Weight2"))  # Ecriture en-tÃªte du fichier
 
         tempElem = []  # listes temporaires
         tempCle = []
         tempApparait = []
         idNoms = []
 
-        for cle, element in apparait.items():  # Récupération dans les listes
+        for cle, element in apparait.items():  # RÃ©cupÃ©ration dans les listes
             tempCle.append(cle)  # Label
             tempElem.append(element)  # Weight2
 
-        for i in tempCle:  # Associe au nom la clé du dictionnaire
+        for i in tempCle:  # Associe au nom la clÃ© du dictionnaire
             for cle, element in dicoNoms.items():
                 if element == i:
                     idNoms.append(cle)
 
-        for nombre in noeud.values():  # Récupération dans une liste
+        for nombre in noeud.values():  # RÃ©cupÃ©ration dans une liste
             tempApparait.append(nombre)  # Weight1
 
         for id in range(len(apparait.values())):  # Ecriture des ligens du csv
             writer.writerow((id + 1, idNoms[id], tempCle[id], tempApparait[id], tempElem[id]))
 
 
-# Fonction d'écriture des arcs dans le CSV
-def edges(arc):  # faire une option de nommage du fichier
+# Fonction d'Ã©criture des arcs dans le CSV
+def edges(weightEdges):  # faire une option de nommage du fichier
     global nameFileEdge
-    with open("Coocurrence_Edges" + datestr + ".csv", 'w', newline='', encoding='windows-1252') as csvfile:
+    with open("CSVTraiteMAPCooccurrence/Coocurrence_Edges" + datestr + ".csv", 'a', newline='',
+              encoding='utf-8') as csvfile:
         writer = csv.writer(csvfile, delimiter=',')
-        writer.writerow(("Source", "Target", "Force_lien", "Type", "Id", "libelle"))  # Ecriture en-tête du fichier
+        writer.writerow(("Source", "Target", "Force_lien", "Type", "Id", "libelle"))  # Ecriture en-tÃªte du fichier
 
-        id = 0  # Clé pour l'id
-        for cle, element in arc.items():
+        id = 0  # ClÃ© pour l'id
+        for cle, element in weightEdges.items():
             writer.writerow((cle[0], cle[1], "Undirected", id, "", element))
             id += 1
 
-        nameFileEdge = 'Coocurrence_Edges' + datestr
+        nameFileEdge = 'CSVTraiteMAPCooccurrence/Coocurrence_Edges' + datestr
+
+
+if __name__ == "__main__":
+    lise = ["([Kurios#Zeus]+HÃªra)#EpÃªkoos"]
+    coocurrence(lise)

@@ -2,6 +2,8 @@
 # Created by Slackh
 # Github : https://github.com/Stanislackh
 
+lise = ["[Apollôn # Puthios] + [Apollôn # Kedrieus]"]
+
 # Liste des signes spéciaux
 signes = {
     1: "+",
@@ -19,58 +21,21 @@ signes = {
 
 # Dictionnaire de toutes les erreurs possibles avec les symboles
 dicoErreurs = {
-    "+#": True,
-    "+/": True,
-    "+)": True,
-    "+]": True,
-    "+=": True,
-    "++": True,
+    "+#": True, "+/": True, "+)": True, "+]": True, "+=": True, "++": True,
 
-    "/+": True,
-    "/#": True,
-    "/)": True,
-    "/]": True,
-    "/=": True,
-    "//": True,
+    "/+": True, "/#": True, "/)": True, "/]": True, "/=": True, "//": True,
 
-    "#+": True,
-    "#/": True,
-    "#)": True,
-    "#]": True,
-    "#=": True,
-    "##": True,
+    "#+": True, "#/": True, "#)": True, "#]": True, "#=": True, "##": True,
 
-    "(+": True,
-    "(/": True,
-    "(#": True,
-    "()": True,
-    "(]": True,
-    "(=": True,
+    "(+": True, "(/": True, "(#": True, "()": True, "(]": True, "(=": True,
 
-    ")/": True,
-    ")(": True,
-    ")[": True,
-    ")=": True,
+    ")/": True, ")(": True, ")[": True, ")=": True,
 
-    "[+": True,
-    "[/": True,
-    "[#": True,
-    "[)": True,
-    "[]": True,
-    "[=": True,
+    "[+": True, "[/": True, "[#": True, "[)": True, "[]": True, "[=": True,
 
-    "](": True,
-    "]=": True,
-    "][": True,
+    "](": True, "]=": True, "][": True,
 
-    "=+": True,
-    "=/": True,
-    "=#": True,
-    "=(": True,
-    "=)": True,
-    "=[": True,
-    "=]": True,
-    "==": True,
+    "=+": True, "=/": True, "=#": True, "=(": True, "=)": True, "=[": True, "=]": True, "==": True,
 }
 
 
@@ -84,7 +49,6 @@ def checkNbParCroch(listeCasNettoye):  # Regarde le si le nombre de crochets est
 
     for formule in listeCasNettoye:  # Regarde chaque formules
         kek = formule
-        print(kek)
         for carac in formule:
             if carac == "(":  # Ajoute 1 si égal a (
                 nbParO += 1
@@ -122,8 +86,9 @@ def caracMalPlace(listeCasNettoye):  # Regarde dans la liste des erreurs de synt
                         print("Erreur de saisie, Vérifiez la syntaxe de " + phrase)
                         print(phrase[indice] + phrase[indice + 1])
                         syntaxeErreur = True
+                        phrase = cas
 
-                        return syntaxeErreur, phrase
+                        return syntaxeErreur
 
     return syntaxeErreur
 
@@ -158,7 +123,11 @@ def nettoyageFormules(listeformules):
             listePropre.append(trigger)
             trigger = ""  # Réinitialise trigger
             listeSuperPropre.append(listePropre)  # Ajoute à la liste de fin
-        print(listeSuperPropre)
+        # print(listeSuperPropre)
         return listeSuperPropre  # Renvoie la liste de fin
     else:
         print("erreur")
+
+
+if __name__ == "__main__":
+    nettoyageFormules(lise)

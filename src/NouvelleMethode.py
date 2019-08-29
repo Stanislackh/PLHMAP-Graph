@@ -1,4 +1,4 @@
-# -- coding: windows-1252 --
+# -- coding: utf-8 --
 # Created by Slackh
 # Github : https://github.com/Stanislackh
 
@@ -8,37 +8,34 @@ import VerificationFormules
 
 from datetime import datetime
 
-# Récupère l'heure et la date du jour
+# RÃ©cupÃ¨re l'heure et la date du jour
 date = datetime.now()
 datestr = date.strftime('_%Y-%m-%d-%H-%M-%S')
-
-# Liste
-lise = ["{joe}#{kolt}#({fred}#{derg}))"]
 
 
 # Algorithme de traitement des formules
 def calculEG(listeFormules):
     global dico_paire_force
-    listePrete = VerificationFormules.nettoyageFormules(listeFormules)  # Prépare les formules pour le traitement
+    listePrete = VerificationFormules.nettoyageFormules(listeFormules)  # PrÃ©pare les formules pour le traitement
 
     for formule in listePrete:
-        couple1 = ""  # Permier élement pour le tuple
-        couple2 = ""  # Second élément pour le tuple
+        couple1 = u""  # Permier Ã©lement pour le tuple
+        couple2 = u""  # Second Ã©lÃ©ment pour le tuple
 
-        repeat = ""  # Le nom qui est répété
+        repeat = u""  # Le nom qui est rÃ©pÃ©tÃ©
         repetition = False
 
         crochet_ouvert = 0  # compte le nombre de crochet ouveert
-        parenthese_ouverte = 0  # Compte le nombre de parenthèses ouverte
+        parenthese_ouverte = 0  # Compte le nombre de parenthÃ¨ses ouverte
 
         dico_paire_force = {}  # Dictionnaire des couples possibles avec les forces des liens
-        elementCompte = []  # Permet de stocker un element non spécial  déjà traité
+        elementCompte = []  # Permet de stocker un element non spÃ©cial  dÃ©jÃ  traitÃ©
 
-        for index in range(len(formule)):  # Parcours la liste autant de fois qu'il y a d'éléments
+        for index in range(len(formule)):  # Parcours la liste autant de fois qu'il y a d'Ã©lÃ©ments
 
-            force_lien = 1  # Force du lien en les 2 élements du tuple
+            force_lien = 1  # Force du lien en les 2 Ã©lements du tuple
 
-            for element in range(len(formule)):  # Regarde pour chaque élément
+            for element in range(len(formule)):  # Regarde pour chaque Ã©lÃ©ment
 
                 if formule[element] == '[' and couple1 == "":  # Si l'element est un crochet ouvert
                     crochet_ouvert += 1  # Ajoute 1 aux crochets ouvert
@@ -49,34 +46,34 @@ def calculEG(listeFormules):
                     crochet_ouvert += 1
 
                 if formule[element] == ']':  # Si l'element est un crochet fermant
-                    crochet_ouvert -= 1  # Enlève 1 aux crochets ouvert
+                    crochet_ouvert -= 1  # EnlÃ¨ve 1 aux crochets ouvert
                     if crochet_ouvert >= 1 and parenthese_ouverte == 0:  # Si le nombre de crochet est > 1 crochet *3
                         force_lien = crochet_ouvert * 3
                         if force_lien <= 0:  # Si la force du lien atteint 0 ou moins le remet a 1
                             force_lien = 1
-                    # Si le nombre de crochet et parenthèse est >= 1 crochet *3 + parenthèses * 2
+                    # Si le nombre de crochet et parenthÃ¨se est >= 1 crochet *3 + parenthÃ¨ses * 2
                     elif crochet_ouvert >= 1 and parenthese_ouverte >= 1:
                         force_lien = crochet_ouvert * 3 + parenthese_ouverte * 2
                         if force_lien <= 0:  # Si la force du lien atteint 0 ou moins le remet a 1
                             force_lien = 1
-                    elif crochet_ouvert == 0 and parenthese_ouverte >= 1:  # Si pas de crochet parenthèses * 2
+                    elif crochet_ouvert == 0 and parenthese_ouverte >= 1:  # Si pas de crochet parenthÃ¨ses * 2
                         force_lien = parenthese_ouverte * 2
                         if force_lien <= 0:  # Si la force du lien atteint 0 ou moins le remet a 1
                             force_lien = 1
                     else:
                         force_lien = 1
 
-                if formule[element] == '(' and couple1 == "":  # Si l'élement est une parenthèse ouvrante
-                    parenthese_ouverte += 1  # Ajoute 1 aux parenthèses ouvrantes
-                    if parenthese_ouverte >= 1:  # Si parenthèses ouvrant est > 1  force = 2 * nb parenthèses
+                if formule[element] == '(' and couple1 == "":  # Si l'Ã©lement est une parenthÃ¨se ouvrante
+                    parenthese_ouverte += 1  # Ajoute 1 aux parenthÃ¨ses ouvrantes
+                    if parenthese_ouverte >= 1:  # Si parenthÃ¨ses ouvrant est > 1  force = 2 * nb parenthÃ¨ses
                         force_lien = parenthese_ouverte * 2 + crochet_ouvert * 3
-                    else:  # Sinon met la force à 2
+                    else:  # Sinon met la force Ã  2
                         force_lien = 2
-                elif formule[element] == '(':  # Si parenthèse ouvrante et couple1 non vide ajoute 1
+                elif formule[element] == '(':  # Si parenthÃ¨se ouvrante et couple1 non vide ajoute 1
                     parenthese_ouverte += 1
 
-                if formule[element] == ')':  # Si l'element est une parenthèse fermante enlève 1 aux parenthèses
-                    parenthese_ouverte -= 1  # Enlève 1 aux parenthèses ouvrantes
+                if formule[element] == ')':  # Si l'element est une parenthÃ¨se fermante enlÃ¨ve 1 aux parenthÃ¨ses
+                    parenthese_ouverte -= 1  # EnlÃ¨ve 1 aux parenthÃ¨ses ouvrantes
                     if crochet_ouvert >= 1 and parenthese_ouverte >= 1:
                         force_lien -= 1
                         if force_lien <= 0:  # Si la force du lien atteint 0 ou moins le remet a 1
@@ -84,7 +81,7 @@ def calculEG(listeFormules):
 
                     elif crochet_ouvert >= 1 and parenthese_ouverte == 0:
                         force_lien = crochet_ouvert * 3
-                    elif parenthese_ouverte >= 1:  # Si le nombre de parenthèses ouvrante est > 1
+                    elif parenthese_ouverte >= 1:  # Si le nombre de parenthÃ¨ses ouvrante est > 1
                         force_lien -= 2
                         if force_lien <= 0:  # Si la force du lien atteint 0 ou moins le remet a 1
                             force_lien = 1
@@ -92,52 +89,52 @@ def calculEG(listeFormules):
                         force_lien = 1
 
                 if formule[element] not in VerificationFormules.signes.values():
-                    # Si element est pas un caracrère spécial
+                    # Si element est pas un caracrÃ¨re spÃ©cial
                     if formule[element] not in elementCompte:  # L'ajoute a la liste
-                        if couple1 == "":  # Si couple1 est vide ajoute l'element
+                        if couple1 == u"":  # Si couple1 est vide ajoute l'element
                             couple1 = formule[element]
                             elementCompte.append(formule[element])
                         else:  # Sinon l'ajoute a couple2
                             couple2 = formule[element]
                     else:  # Sinon passe au suivant
-                        if couple1 == formule[element] and repeat == "":
+                        if couple1 == formule[element] and repeat == u"":
                             repeat = element
-                            repetition = True  # Indique une répétition
+                            repetition = True  # Indique une rÃ©pÃ©tition
                         if repetition is True:
                             pass
                         else:
                             force_lien = (crochet_ouvert * 3) + (parenthese_ouverte * 2)
 
-                if couple1 != "" and couple2 != "":  # Si les 2 variables sont différente de vide
+                if couple1 != u"" and couple2 != u"":  # Si les 2 variables sont diffÃ©rente de vide
                     if (couple1, couple2) in dico_paire_force:  # Si le couple existe fait rien
                         pass
-                    else:  # Sinon l'ajoute au dictionnaire avec la force de lien associé
+                    else:  # Sinon l'ajoute au dictionnaire avec la force de lien associÃ©
                         dico_paire_force[(couple1, couple2)] = force_lien
-                    couple2 = ""  # Réinitialise le couple 2
-            couple1 = ""  # Réinitialise couple 1
+                    couple2 = u""  # RÃ©initialise le couple 2
+            couple1 = u""  # RÃ©initialise couple 1
 
-        # Gestion de la répétition
-        if repeat != "":
-            for i in reversed(range(repeat)):  # Parcours en sens inverse depuis l'élément répété
+        # Gestion de la rÃ©pÃ©tition
+        if repeat != u"":
+            for i in reversed(range(repeat)):  # Parcours en sens inverse depuis l'Ã©lÃ©ment rÃ©pÃ©tÃ©
                 if formule[i] == '[':  # Si l'element est un crochet ajoute 1 et lien * 3
                     crochet_ouvert += 1
                     force_lien = crochet_ouvert * 3
 
-                if formule[i] == '(':  # Si l'element est une parenthèse ajoute 1 et lien * 2
+                if formule[i] == '(':  # Si l'element est une parenthÃ¨se ajoute 1 et lien * 2
                     parenthese_ouverte += 1
                     force_lien = parenthese_ouverte * 2
 
                 if formule[i] not in VerificationFormules.signes.values():
-                    # Si rencontre une élément non spécial coupe la boucle
+                    # Si rencontre une Ã©lÃ©ment non spÃ©cial coupe la boucle
                     break
 
-            couple1 = formule[repeat]  # Couple1 recoit l'element répété
+            couple1 = formule[repeat]  # Couple1 recoit l'element rÃ©pÃ©tÃ©
 
-            for i in formule[repeat + 1:]:  # Parcours la boucle depuis l'élément répété
+            for i in formule[repeat + 1:]:  # Parcours la boucle depuis l'Ã©lÃ©ment rÃ©pÃ©tÃ©
                 if i not in VerificationFormules.signes.values():
-                    # Si l'élément est pas un caratère spécial couple2 = i
+                    # Si l'Ã©lÃ©ment est pas un caratÃ¨re spÃ©cial couple2 = i
                     couple2 = i
-                if couple1 != "" and couple2 != "":  # Si les 2 variables sont différente de vide
+                if couple1 != u"" and couple2 != u"":  # Si les 2 variables sont diffÃ©rente de vide
                     # Si le couple existe replace la valeur si elle est plus grande
                     if (couple1, couple2) in dico_paire_force:
                         if force_lien > dico_paire_force[(couple1, couple2)]:
@@ -145,27 +142,29 @@ def calculEG(listeFormules):
 
             # Ecrit dans le CSV le resultat
             ecrireCSV(dico_paire_force, elementCompte)
-            repeat = ""
+            repeat = u""
 
         else:
             # Ecrit dans le CSV le resultat
             ecrireCSV(dico_paire_force, elementCompte)
 
 
-# Fonction écriture du CSV
-def ecrireCSV(dicoPaireForce, elementCompte):  # Ecris le CSV avec la nouvelle méthode de calcul
+# Fonction Ã©criture du CSV
+def ecrireCSV(dicoPaireForce, elementCompte):  # Ecris le CSV avec la nouvelle mÃ©thode de calcul
     global nomfichierEdge
 
     id = 1  # Id pour les paires
-    if os.path.exists('CalculEG_Edges' + datestr + '.csv'):  # Si le fichier existe ecrit a la suite
-        with open('CalculEG_Edges' + datestr + '.csv', 'a', newline='', encoding='windows-1252') as csvfile:
+    if os.path.exists('CSVTraiteMAP/CalculEG_Edges' + datestr + '.csv'):  # Si le fichier existe ecrit a la suite
+        nomfichierEdge = 'CSVTraiteMAP/CalculEG_Edges' + datestr
+        with open('CSVTraiteMAP/CalculEG_Edges' + datestr + '.csv', 'a', newline='', encoding='utf-8') as csvfile:
             writer = csv.writer(csvfile, delimiter=',')
-            # writer.writerow(("", "", "", ""))
+            writer.writerow(("Source", "Target", "Id", "Force_lien"))
             for cle, valeur in dicoPaireForce.items():
                 writer.writerow((cle[0], cle[1], id, valeur))
                 id += 1
 
-        with open('CalculEG_Nodes' + datestr + '.csv', 'a', newline='', encoding='windows-1252') as csvfile:
+
+        with open('CSVTraiteMAP/CalculEG_Nodes' + datestr + '.csv', 'a', newline='', encoding='utf-8') as csvfile:
             writer = csv.writer(csvfile, delimiter=',')
             writer.writerow(('', '', ''))
 
@@ -173,20 +172,21 @@ def ecrireCSV(dicoPaireForce, elementCompte):  # Ecris le CSV avec la nouvelle m
             for i in elementCompte:
                 writer.writerow((num, i, i))
                 num += 1
-    else:  # Si le fichier n'existe pas le crée
+    else:  # Si le fichier n'existe pas le crÃ©e
 
-        # Correspond aux arcs dans Gephi
-        with open('CalculEG_Edges' + datestr + '.csv', 'w', newline='', encoding='windows-1252') as csvfile:
+        if not os.path.exists('CSVTraiteMAP'):  # CrÃ©e le dossier qui contiendra les fichiers traitÃ©s
+            os.makedirs('CSVTraiteMAP')
+        with open('CSVTraiteMAP/CalculEG_Edges' + datestr + '.csv', 'w', newline='', encoding='utf-8') as csvfile:
             writer = csv.writer(csvfile, delimiter=',')
             writer.writerow(("Source", "Target", "Id", "Force_lien"))
 
             for cle, valeur in dicoPaireForce.items():
                 writer.writerow((cle[0], cle[1], id, valeur))
                 id += 1
-            nomfichierEdge = 'CalculEG_Edges' + datestr
-            print(nomfichierEdge)
 
-        with open('CalculEG_Nodes' + datestr + '.csv', 'w', newline='', encoding='windows-1252') as csvfile:
+            nomfichierEdge = 'CSVTraiteMAP/CalculEG_Edges' + datestr
+
+        with open('CSVTraiteMAP/CalculEG_Nodes' + datestr + '.csv', 'a', newline='', encoding='utf-8') as csvfile:
             writer = csv.writer(csvfile, delimiter=',')
             writer.writerow(('Nodes', 'nom', 'Label',))
 
@@ -197,4 +197,6 @@ def ecrireCSV(dicoPaireForce, elementCompte):  # Ecris le CSV avec la nouvelle m
 
 
 if __name__ == "__main__":
-    VerificationFormules.checkNbParCroch(lise)
+    # Liste
+    lise = ["([Kurios#Zeus]+HÃªra)#EpÃªkoos"]
+    calculEG(lise)
