@@ -43,4 +43,4 @@ def create_graph(resultCSV):
 
 
 if __name__ == "__main__":
-    create_graph("CalculEG_Edges_2019-08-27-15-36-43")
+    create_graph("CSVTraiteMAP/CalculEG_Edges_2019-08-30-10-58-12")

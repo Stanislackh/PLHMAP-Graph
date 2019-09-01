@@ -123,7 +123,7 @@ def fenetreAide():
     titre.grid(column=1, row=0)
 
     # Première ligne de texte explicatif
-    h1 = Label(fenAide, text="Je l'éditerai plus tard")
+    h1 = Label(fenAide, text="Lien vers ce document")
     h1.grid(column=0, row=1)
 
 
@@ -220,8 +220,6 @@ def recupererCheckboxCheck():
 
         if listeValeurs[i].get() == 1:
             listeCheck.append(listeLabels[i])
-    print('liste des formules check')
-    print(listeCheck)
 
     # messagebox.showinfo("Formules sélectionnées", str(listeCheck))  # Affiche la liste des formules selectionnées
 
@@ -266,25 +264,27 @@ def remplirOnglet(canvas, nomFichier, listeCheckboxes, listeV, listeLabels):
                 ligne += 1  # Ajoute 1 pour passer à la ligne suivante
 
 
-# Permet d'afficher la ColorDialog
-def choixCouleur():
-    couleur = colorchooser.askcolor(title="Choisissez la couleur")
-    print(couleur)
+def voirGraphe():
+    global fichiers
+    global listeNomFichiers
+    global fileName
 
+    fichiers = tkinter.filedialog.askopenfilenames(title="Ouvrir un fichier CSV", filetypes=[('CSV files', '.csv')])
 
-# # Reset des varaibles globales
-# def resetVariableGlobal():
-#     listeCheckboxes = []  # Les boxes
-#     listeValeurs = []  # les valeurs
-#     listeLabels = []  # Les formules
-#
-#     listeNomFichiers = []
-#     fileName = []
-#     nomOnglet = []
-#
-#     listeCheck = []
-#     if not os.path.exists(NouvelleMethode.nomfichierEdge + ".csv"):
-#         fenetreAccueil()
+    fi = 0
+    listeNomFichiers = []
+    fileName = []
+    for i in range(len(fichiers)):
+        r1, r2 = os.path.split(fichiers[fi])  # Coupe le path et le fichier
+
+        nom, extension = os.path.splitext(r2)  # Garle le nom sans l'extension du fichier
+        fileName.append(nom)
+
+        listeNomFichiers.append(r2)  # Récupère le nom du fichier
+
+        fi += 1
+
+    pyvis_network_graph.create_graph(r1 + "/" + nom)  # Appel fonction de visualisation du graphe
 
 
 # Création de la fenêtre d'accueil
@@ -297,23 +297,26 @@ def fenetreAccueil():
     fenAccueil.title("PLH / MAP")
 
     # Barre de status
-    statusbar = Label(fenAccueil, text="PLH/MAP", relief=SUNKEN, anchor=W)
+    statusbar = Label(fenAccueil, text="PLH/MAP outil developpé par S.KÖHLER", relief=SUNKEN, anchor=W)
     statusbar.pack(side=BOTTOM, fill=X)
 
     barreMenu(fenAccueil)  # Appel de la fonction qui affiche la barre de menu
 
     # Message d'accueuil
-    titre = Label(fenAccueil, text="PLH / MAP")
+    titre = Label(fenAccueil, text=u"PLH / MAP")
     titre.pack()
 
-    boutonOpenCSV = Button(fenAccueil, text="Ouvrir CSV", command=ouvrirCSV, width=15, height=5)
+    boutonOpenCSV = Button(fenAccueil, text="Traiter formules", command=ouvrirCSV, width=15, height=5)
     boutonOpenCSV.pack()
+
+    boutonFichierCalcule = Button(fenAccueil, text="Voir graphe", command=voirGraphe, width=15, height=5)
+    boutonFichierCalcule.pack()
 
     # Image de Présentation
     Can1 = Canvas(fenAccueil, width=500, height=500)
     photo = PhotoImage(file='images/map.gif')
     item = Can1.create_image(250, 200, image=photo)
-    Can1.pack()
+    Can1.pack(anchor=S)
 
     fenAccueil.mainloop()
 
@@ -363,7 +366,6 @@ def fenetrePrincipale():
     #     menuOptions.add_command(label="Exporter Graphe", command="")
     #
     #     fenCoo.mainloop()
-
 
 
 if __name__ == "__main__":
