@@ -220,6 +220,8 @@ def recupererCheckboxCheck():
 
         if listeValeurs[i].get() == 1:
             listeCheck.append(listeLabels[i])
+    print('liste des formules selectionnées')
+    print(listeCheck)
 
     # messagebox.showinfo("Formules sélectionnées", str(listeCheck))  # Affiche la liste des formules selectionnées
 
@@ -330,10 +332,6 @@ def fenetrePrincipale():
     centrefenetre(fenPrincipale)
     fenPrincipale.title("PLH / MAP")
 
-    # # Barre de status
-    # statusbar = Label(fenPrincipale, text="Bienvenue, Je suis la barre de status", relief=SUNKEN, anchor=W)
-    # statusbar.grid(side=BOTTOM, fill=X)
-
     barreMenu(fenPrincipale)  # Appel de la fonction qui affiche la barre de menu
 
     # Appel de la fonction pour mettre des onglets par fichier
@@ -342,31 +340,6 @@ def fenetrePrincipale():
     afficheBouton(fenPrincipale)  # Affiche les boutons pour le type d'algo à utiliser et le check des checkboxes
 
     fenPrincipale.mainloop()
-
-    # # Ouvre le fenêtre pour la coocurence ou le graphe valué
-    # def fenetreGrpahe():
-    #     fenCoo = Toplevel()
-    #     fenCoo.geometry("550x550")
-    #     # centrefenetre(fenCoo)
-    #     fenCoo.title("Aide")
-    #
-    #     # Barre de menu
-    #     menubar = Menu(fenCoo)
-    #     fenCoo.config(menu=menubar)
-    #
-    #     # Onglet d'import des CSV
-    #     menuOptions = Menu(menubar, tearoff=0)
-    #     menubar.add_cascade(label="Options", menu=menuOptions)
-    #     menuOptions.add_command(label="Couleur Noeud", command=choixCouleur)
-    #     menuOptions.add_command(label="Couleur Arc", command=choixCouleur)
-    #     menuOptions.add_separator()
-    #     menuOptions.add_command(label="Taille Noeud", command="")
-    #     menuOptions.add_command(label="Taille Arc", command="")
-    #     menuOptions.add_separator()
-    #     menuOptions.add_command(label="Exporter Graphe", command="")
-    #
-    #     fenCoo.mainloop()
-
 
 if __name__ == "__main__":
     fenetreAccueil()

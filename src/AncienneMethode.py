@@ -59,7 +59,7 @@ def coocurrence(liste):
     for element in liste:  # Applique pour chaque élément de la liste le traitement de la formule
         formule = element
 
-        trigger = ""  # Pour récupérer les noms
+        trigger = u""  # Pour récupérer les noms
         final = []  # Liste qui récupère les noms
 
         # Nettoyeage de la formule
@@ -67,14 +67,14 @@ def coocurrence(liste):
             if i not in signes.values():  # Si non spécial ajoute a trigger
                 trigger += i
             else:
-                if trigger != "":  # si Trigger différent de vide ajoute a la liste et la réinitialise
+                if trigger != u"":  # si Trigger différent de vide ajoute a la liste et la réinitialise
                     final.append(trigger)
-                    trigger = ""
+                    trigger = u""
 
         """Ajoute les listes de noms à un dictionnaire"""
-        if trigger != "":
+        if trigger != u"":
             final.append(trigger)
-            trigger = ""
+            trigger = u""
 
         nomsDansFormules[clea] = final
         clea += 1
@@ -116,12 +116,35 @@ def coocurrence(liste):
                 noeud[i] = 1  # Ajoute l'élément et l'initialise a 1
             else:
                 noeud[i] += 1  # Incrémente la valeur si celui ci est présent
-    print("arc")
-    print(arc)
-    """Ecrit dans un csv les résultats en appelant la fonction csvGraphes"""
-    csvGraphes(noeud, apparait, weightEdges)  # les 3 dictionnaires associés en paramètres
 
-    return noeud, poids, arc  # Revoie le dictionnaire avec les nombres d'apparition des noms par formules et le total
+    """Ecrit dans un csv les résultats en appelant la fonction csvGraphes"""
+    fusion = fusion_dictionnaire(arc, apparait)
+    csvGraphes(fusion, apparait, weightEdges)  # les 3 dictionnaires associés en paramètres
+
+    return noeud, poids, arc, fusion  # Revoie le dictionnaire avec les nombres d'apparition des noms par formules et le total
+
+
+# Fonction pour regrouper les dictionnaires
+def fusion_dictionnaire(dico_couple, apparition):
+    fusion_dico = {}
+
+    for valeur in dico_couple.values():
+        for premier, second in valeur:
+            for nom, nombre in apparition.items():  # Regarde pour chaque couple le nombre d'apparition du nom
+                if premier == nom:  # Stocke la valeur pour le premier element du couple
+                    temp = (premier, nombre)
+
+                if second == nom:  # Stocke la valeur pour le second element du couple
+                    temp2 = (second, nombre)
+
+
+            # Quand les deux variables sont non nulles les assembles en un tuple dans un dictionnaire
+            if temp != u"" and temp2 != u"":
+                fusion_dico[(premier, second)] = (1, temp[1], temp2[1])
+            else:
+                pass
+
+    return fusion_dico
 
 
 # Couple les noms pour faire les arcs
@@ -165,9 +188,6 @@ def nomsNombres(dicoArc):
     for i in range(len(source)):  # Ajoute a la liste le nouveau couples d'Id
         sourceTarget.append((source[i], target[i]))
 
-    print('source')
-    print(sourceTarget)
-
     def getKey(item):  # Fonction interne pour faire le tri par le premier élement du tuple
         return item[0]
 
@@ -185,23 +205,23 @@ def comptePoidsArc(couplesId):  # Compte le nombre de fois où le couple appara�
 
 
 # Fonction d'écriture dans le CSV
-def csvGraphes(noeud, apparait, weightEdges):
+def csvGraphes(fusion, apparait, weightEdges):
     if os.path.exists("CSVTraiteMAPCooccurrence"):
-        nodes(noeud, apparait)  # Appelle la fonction qui écrit le CSV pour les Noeuds
+        nodes(fusion, apparait)  # Appelle la fonction qui écrit le CSV pour les Noeuds
     else:
         os.mkdir("CSVTraiteMAPCooccurrence")  # Crée le dossier qui contient les fichiers traités
-        nodes(noeud, apparait)  # Appelle la fonction qui écrit le CSV pour les Noeuds
+        nodes(fusion, apparait)  # Appelle la fonction qui écrit le CSV pour les Noeuds
 
     """Test écriture du CSV pour les Arcs"""
     if os.path.exists("CSVTraiteMAPCooccurrence"):
-        edges(weightEdges)  # Appelle la fonction qui écrit le CSV pour les Arcs
+        edges(weightEdges, fusion)  # Appelle la fonction qui écrit le CSV pour les Arcs
     else:
         os.mkdir("CSVTraiteMAPCooccurrence")  # Crée le dossier qui contient les fichiers traités
-        edges(weightEdges)  # Appelle la fonction qui écrit le CSV pour les Arcs
+        edges(weightEdges, fusion)  # Appelle la fonction qui écrit le CSV pour les Arcs
 
 
 # Fonction d'écriture des noeuds dans le CSV
-def nodes(noeud, apparait):  # faire une option de nommage du fichier
+def nodes(fusion, apparait):  # faire une option de nommage du fichier
     with open("CSVTraiteMAPCooccurrence/Coocurrence_Nodes" + datestr + ".csv", 'a', newline='',
               encoding='utf-8') as csvfile:
         writer = csv.writer(csvfile, delimiter=',')
@@ -221,7 +241,7 @@ def nodes(noeud, apparait):  # faire une option de nommage du fichier
                 if element == i:
                     idNoms.append(cle)
 
-        for nombre in noeud.values():  # Récupération dans une liste
+        for nombre in fusion.values():  # Récupération dans une liste
             tempApparait.append(nombre)  # Weight1
 
         for id in range(len(apparait.values())):  # Ecriture des ligens du csv
@@ -229,21 +249,21 @@ def nodes(noeud, apparait):  # faire une option de nommage du fichier
 
 
 # Fonction d'écriture des arcs dans le CSV
-def edges(weightEdges):  # faire une option de nommage du fichier
+def edges(weightEdges, fusion):  # faire une option de nommage du fichier
     global nameFileEdge
     with open("CSVTraiteMAPCooccurrence/Coocurrence_Edges" + datestr + ".csv", 'a', newline='',
               encoding='utf-8') as csvfile:
         writer = csv.writer(csvfile, delimiter=',')
-        writer.writerow(("Source", "Target", "Force_lien", "Type", "Id", "libelle"))  # Ecriture en-tête du fichier
+        writer.writerow(("Source", "Target", "Id", "Force_lien", "ForceSrc", "ForceTgt"))  # Ecriture en-tête du fichier
 
         id = 0  # Clé pour l'id
-        for cle, element in weightEdges.items():
-            writer.writerow((cle[0], cle[1], "Undirected", id, "", element))
+        for cle, element in fusion.items():
+            writer.writerow((cle[0], cle[1], id, element[0], element[1], element[2]))
             id += 1
 
         nameFileEdge = 'CSVTraiteMAPCooccurrence/Coocurrence_Edges' + datestr
 
 
 if __name__ == "__main__":
-    lise = ["([Kurios#Zeus]+Hêra)#Epêkoos"]
+    lise = ["([Kurios#Zeus]+Hêra)#Epêkoos", '[Apollôn#Zeus]+[Apollôn#Kedrieus]']
     coocurrence(lise)

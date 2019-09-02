@@ -18,6 +18,8 @@ def calculEG(listeFormules):
     global dico_paire_force
     listePrete = VerificationFormules.nettoyageFormules(listeFormules)  # Prépare les formules pour le traitement
 
+    apparition = calcul_nombre_apparition(listeFormules)  # Calcule le nombre d'apparition dans les formules
+
     for formule in listePrete:
         couple1 = u""  # Permier élement pour le tuple
         couple2 = u""  # Second élément pour le tuple
@@ -109,6 +111,8 @@ def calculEG(listeFormules):
                     if (couple1, couple2) in dico_paire_force:  # Si le couple existe fait rien
                         pass
                     else:  # Sinon l'ajoute au dictionnaire avec la force de lien associé
+                        if force_lien == 0:
+                            force_lien = 1
                         dico_paire_force[(couple1, couple2)] = force_lien
                     couple2 = u""  # Réinitialise le couple 2
             couple1 = u""  # Réinitialise couple 1
@@ -140,38 +144,91 @@ def calculEG(listeFormules):
                         if force_lien > dico_paire_force[(couple1, couple2)]:
                             dico_paire_force[(couple1, couple2)] = force_lien
 
+            fusion = fusion_dictionnaire(dico_paire_force, apparition)
+
             # Ecrit dans le CSV le resultat
-            ecrireCSV(dico_paire_force, elementCompte)
+            ecrireCSV(elementCompte, fusion)
             repeat = u""
 
         else:
+            fusion = fusion_dictionnaire(dico_paire_force, apparition)
             # Ecrit dans le CSV le resultat
-            ecrireCSV(dico_paire_force, elementCompte)
+            ecrireCSV(elementCompte, fusion)
+
+
+# Fonction de calcul du nombre d'apparition d'un mot
+def calcul_nombre_apparition(listeFormules):
+    dico_apparait = {}  # Dictionnaire qui stocke les noms et le nombre d'apparition du mot
+
+    for exp in listeFormules:  # Regarde chaque formule
+        trigger = u""
+        nombre_apparition = 1  # nombre d'apparition
+
+        for carac in exp:
+            if carac not in VerificationFormules.signes.values():  # Récupère tout hors caractère spécial
+                trigger += carac
+            else:
+                if trigger != u"":  # Reconstitue le nom
+                    if trigger in dico_apparait.keys():  # Ajoute 1 en plus a chaque apparition par formule
+                        dico_apparait[trigger] = nombre_apparition + 1
+                        trigger = u""
+                    else:
+                        dico_apparait[trigger] = nombre_apparition  # Ajoute le nom pour la première fois
+                        trigger = u""
+
+        if trigger != u"":  # Ajoute le dernier nom
+            dico_apparait[trigger] = 1
+            trigger = u""
+
+    print('dico_noms')
+    print(dico_apparait)
+    print()
+
+    return dico_apparait
+
+
+# Fonction pour regrouper les dictionnaires
+def fusion_dictionnaire(dico_paire_force, apparition):
+    fusion_dico = {}
+
+    for couple, force in dico_paire_force.items():
+        for nom, nombre in apparition.items():  # Regarde pour chaque couple le nombre d'apparition du nom
+            if couple[0] == nom:  # Stocke la valeur pour le premier element du couple
+                temp = (couple[0], nombre)
+
+            if couple[1] == nom:  # Stocke la valeur pour le second element du couple
+                temp2 = (couple[1], nombre)
+
+        # Quand les deux variables sont non nulles les assembles en un tuple dans un dictionnaire
+        if temp != u"" and temp2 != u"":
+            fusion_dico[couple] = (force, temp[1], temp2[1])
+
+    return fusion_dico
 
 
 # Fonction écriture du CSV
-def ecrireCSV(dicoPaireForce, elementCompte):  # Ecris le CSV avec la nouvelle méthode de calcul
+def ecrireCSV(elementCompte, fusion):  # Ecris le CSV avec la nouvelle méthode de calcul
     global nomfichierEdge
 
     # Récupère l'heure et la date du jour
     date = datetime.now()
     datestr = date.strftime('_%Y-%m-%d-%H-%M-%S')
 
-    nomfichierEdge = 'CSVTraiteMAP/CalculEG_Edges' + datestr
+    nomfichierEdge = 'CSVTraiteMAP/CalculMAP_Edges' + datestr
 
     id = 1  # Id pour les paires
-    if os.path.exists('CSVTraiteMAP/CalculEG_Edges' + datestr + '.csv'):  # Si le fichier existe ecrit a la suite
-        with open('CSVTraiteMAP/CalculEG_Edges' + datestr + '.csv', 'a', newline='', encoding='utf-8') as csvfile:
-            
-            nomfichierEdge = 'CSVTraiteMAP/CalculEG_Edges' + datestr
+    if os.path.exists('CSVTraiteMAP/CalculMAP_Edges' + datestr + '.csv'):  # Si le fichier existe ecrit a la suite
+        with open('CSVTraiteMAP/CalculMAP_Edges' + datestr + '.csv', 'a', newline='', encoding='utf-8') as csvfile:
+
+            nomfichierEdge = 'CSVTraiteMAP/CalculMAP_Edges' + datestr
 
             writer = csv.writer(csvfile, delimiter=',')
             # writer.writerow(("Source", "Target", "Id", "Force_lien"))
-            for cle, valeur in dicoPaireForce.items():
-                writer.writerow((cle[0], cle[1], id, valeur))
+            for cle, valeur in fusion.items():
+                writer.writerow((cle[0], cle[1], id, valeur[0], valeur[1], valeur[2]))
                 id += 1
 
-        with open('CSVTraiteMAP/CalculEG_Nodes' + datestr + '.csv', 'a', newline='', encoding='utf-8') as csvfile:
+        with open('CSVTraiteMAP/CalculMAP_Nodes' + datestr + '.csv', 'a', newline='', encoding='utf-8') as csvfile:
             writer = csv.writer(csvfile, delimiter=',')
             writer.writerow(('', '', ''))
 
@@ -183,18 +240,18 @@ def ecrireCSV(dicoPaireForce, elementCompte):  # Ecris le CSV avec la nouvelle m
 
         if not os.path.exists('CSVTraiteMAP'):  # Crée le dossier qui contiendra les fichiers traités
             os.makedirs('CSVTraiteMAP')
-        with open('CSVTraiteMAP/CalculEG_Edges' + datestr + '.csv', 'w', newline='', encoding='utf-8') as csvfile:
+        with open('CSVTraiteMAP/CalculMAP_Edges' + datestr + '.csv', 'w', newline='', encoding='utf-8') as csvfile:
 
-            nomfichierEdge = 'CSVTraiteMAP/CalculEG_Edges' + datestr
+            nomfichierEdge = 'CSVTraiteMAP/CalculMAP_Edges' + datestr
 
             writer = csv.writer(csvfile, delimiter=',')
-            writer.writerow(("Source", "Target", "Id", "Force_lien"))
+            writer.writerow(("Source", "Target", "Id", "Force_lien", "ForceSrc", "ForceTgt"))
 
-            for cle, valeur in dicoPaireForce.items():
-                writer.writerow((cle[0], cle[1], id, valeur))
+            for cle, valeur in fusion.items():
+                writer.writerow((cle[0], cle[1], id, valeur[0], valeur[1], valeur[2]))
                 id += 1
 
-        with open('CSVTraiteMAP/CalculEG_Nodes' + datestr + '.csv', 'a', newline='', encoding='utf-8') as csvfile:
+        with open('CSVTraiteMAP/CalculMAP_Nodes' + datestr + '.csv', 'a', newline='', encoding='utf-8') as csvfile:
             writer = csv.writer(csvfile, delimiter=',')
             writer.writerow(('Nodes', 'nom', 'Label',))
 
@@ -206,5 +263,8 @@ def ecrireCSV(dicoPaireForce, elementCompte):  # Ecris le CSV avec la nouvelle m
 
 if __name__ == "__main__":
     # Liste
-    lise = ["([Kurios#Zeus]+Hêra)#Epêkoos"]
-    calculEG(lise)
+    lise3 = ['[([Isis#Sôtêr]/Astartê/[Aphroditê#Euploia])#Epêkoos]+[Erôs/Harpokratês/Apollôn]']
+    lise2 = ["([Kurios#Zeus]+Hêra)#Epêkoos", '[Apollôn#Zeus]+[Apollôn#Kedrieus]']
+    lise = ['[Apollôn#Zeus]+[Apollôn#Kedrieus]']
+    # calcul_nombre_apparition(lise2)
+    calculEG(lise3)
