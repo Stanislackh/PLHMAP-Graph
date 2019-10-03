@@ -5,6 +5,7 @@
 from pyvis.network import Network
 import pandas as pd
 import NouvelleMethode
+import os
 from datetime import datetime
 
 
@@ -48,12 +49,12 @@ def create_graph(resultCSV):
         info['title'] += " <br>"
 
         for cle in range(len(listeVoisins)):  # Regarde les infos pour chaque arc
-            if info['label'] == listeVoisins[cle]['from']:  # Les infos pour chaque départ d'arc et les affiche
-                info['title'] += "lié avec: " + listeVoisins[cle]['to'] + " : " + str(listeVoisins[cle]['value'])
+            if info['label'] == str(listeVoisins[cle]['from']):  # Les infos pour chaque départ d'arc et les affiche
+                info['title'] += "lié avec: " + str(listeVoisins[cle]['to']) + " : " + str(listeVoisins[cle]['value'])
                 info['title'] += "<br>"
 
-            if info['label'] == listeVoisins[cle]['to']:  # Les infos pour chaque arrivée d'arc et les affiche
-                info['title'] += "lié avec: " + listeVoisins[cle]['from'] + " : " + str(listeVoisins[cle]['value'])
+            if info['label'] == str(listeVoisins[cle]['to']):  # Les infos pour chaque arrivée d'arc et les affiche
+                info['title'] += "lié avec: " + str(listeVoisins[cle]['from']) + " : " + str(listeVoisins[cle]['value'])
                 info['title'] += "<br>"
 
     map_network.show_buttons(filter_=['nodes', 'edges', 'physics'])  # Affiche les boutons pour les options
@@ -62,7 +63,9 @@ def create_graph(resultCSV):
     date = datetime.now()
     datestr = date.strftime('_%Y-%m-%d-%H-%M-%S')
 
-    map_network.save_graph("ERCMapGraph" + datestr + ".html")  # Sauvegarde le graphe
+    if not os.path.exists('Graphes'):  # Crée le dossier qui contiendra les fichiers traités
+        os.makedirs('Graphes')
+    map_network.save_graph("Graphes/ERCMapGraph" + datestr + ".html")  # Sauvegarde le graphe
     map_network.show("ERCMapGraph" + datestr + ".html")  # Affiche le graphe
 
 

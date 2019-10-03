@@ -1,0 +1,359 @@
+# -- coding: utf-8 --
+# Created by Slackh
+# Github : https://github.com/Stanislackh
+
+import csv
+import os
+
+from tkinter import *
+from tkinter import messagebox
+from tkinter import ttk
+from tkinter import colorchooser
+import tkinter.filedialog
+
+# import DistributiviteSandbox
+import AncienneMethode
+import NouvelleMethode
+import pyvis_network_graph
+import VerificationFormules
+
+
+# Centre la fenetre
+def geoliste(g):
+    r = [i for i in range(0, len(g)) if not g[i].isdigit()]
+    return [int(g[0:r[0]]), int(g[r[0] + 1:r[1]]), int(g[r[1] + 1:r[2]]), int(g[r[2] + 1:])]
+
+
+def centrefenetre(fen):
+    fen.update_idletasks()
+    l, h, x, y = geoliste(fen.geometry())
+    fen.geometry("%dx%d%+d%+d" % (l, h, (fen.winfo_screenwidth() - l) // 2, (fen.winfo_screenheight() - h) // 2))
+
+
+# Ferme la fenêtre en question
+def fenDestroy(fenetre):
+    fenetre.destroy()
+
+
+# Fonction qui fait appel à la barre des menus
+def barreMenu(fenetre):
+    # Barre de menu
+    menubar = Menu(fenetre)
+    fenetre.config(menu=menubar)
+
+    # # Onglet d'import des CSV
+    # menuCSV = Menu(menubar, tearoff=0)
+    # menubar.add_cascade(label="Importer CSV", menu=menuCSV)
+    # menuCSV.add_command(label="Importer CSV", command=ouvrirCSV)
+
+    # Onglet d'ouverture de la page d'aide
+    menuAide = Menu(menubar, tearoff=0)
+    menubar.add_cascade(label="Aide", menu=menuAide)
+    menuAide.add_command(label="Aide", command=fenetreAide)
+
+
+# Fonction d'ouverture boite de dialogue pour l'import des CSV
+def ouvrirCSV():
+    global fichiers
+    global listeNomFichiers
+    global fileName
+
+    global listeCheckboxes  # Pour pouvoir cocher et décocher les checkboxes
+    global listeValeurs
+    global listeLabels
+
+    listeCheckboxes = []  # Les boxes
+    listeValeurs = []  # les valeurs
+    listeLabels = []  # Les formules
+
+    fichiers = tkinter.filedialog.askopenfilenames(title="Ouvrir un fichier CSV", filetypes=[('CSV files', '.csv')])
+
+    fi = 0
+    listeNomFichiers = []
+    fileName = []
+    for i in range(len(fichiers)):
+        r1, r2 = os.path.split(fichiers[fi])  # Coupe le path et le fichier
+
+        nom, extension = os.path.splitext(r2)  # Garle le nom sans l'extension du fichier
+        fileName.append(nom)
+
+        listeNomFichiers.append(r1 + '/' + r2)  # Récupère le nom du fichier
+
+        fi += 1
+
+    fenDestroy(fenAccueil)  # Détruit la fenêtre d'accueil
+
+    if listeNomFichiers == []:
+        fenetreAccueil()
+    else:
+        fenetrePrincipale()  # ouvre le fenêtre de résultat
+
+
+# Import CSV pour le bouton
+def ouvrirCSV2(fenetre):
+    global fichiers
+    global listeNomFichiers
+    global fileName
+
+    fichiers = tkinter.filedialog.askopenfilenames(title="Ouvrir un fichier CSV", filetypes=[('CSV files', '.csv')])
+
+    fi = 0
+    listeNomFichiers = []
+    fileName = []
+    for i in range(len(fichiers)):
+        r1, r2 = os.path.split(fichiers[fi])  # Coupe le path et le fichier
+
+        nom, extension = os.path.splitext(r2)  # Garle le nom sans l'extension du fichier
+        fileName.append(nom)
+
+        listeNomFichiers.append(r1 + '/' + r2)  # Récupère le nom du fichier
+
+        fi += 1
+
+    ongletsCSV(fenetre, listeNomFichiers)  # Rajoute un onglet à la fenetre principale
+
+
+# Fonction qui permet d'ouvrir la fenêtre d'aide
+def fenetreAide():
+    # Création de la fenêtre
+    fenAide = Tk()
+    fenAide.geometry("550x550")
+    centrefenetre(fenAide)
+    fenAide.title("Aide")
+
+    # Titre en haut de la fenêtre
+    titre = Label(fenAide, text="Comment utiliser l'application")
+    titre.grid(column=1, row=0)
+
+    # Première ligne de texte explicatif
+    h1 = Label(fenAide, text="Lien vers ce document")
+    h1.grid(column=0, row=1)
+
+
+# Ajoute les onglets à la fenêtre
+def ongletsCSV(fenetre, listeNomFichiers):
+    global nomOnglet
+    tabControl = ttk.Notebook(fenetre)
+    tabControl.pack()
+
+    nomOnglet = []  # Liste des noms d'onglets
+
+    # Crée les onglets en fonction du nombre de ficheirs importés
+    for j in range(len(listeNomFichiers)):
+        nomOnglet.append("onglet_" + str(j))  # Crée un nom en boucle
+        nomOnglet[j] = fileName[j]  # l'onglet recoit le nom du fichier
+        nomOnglet[j] = ttk.Frame(tabControl, width=500,
+                                 height=300)  # Permet de créer l'espace pour afficher l'onglet
+
+        # Création du canvas qui permet d'avoir la barre déroulante et afficher les lignes du CSV avec checkboxes
+        canvas = Canvas(nomOnglet[j], width=400, height=300)
+        scroll = Scrollbar(nomOnglet[j], command=canvas.yview)
+
+        canvas.config(yscrollcommand=scroll.set, scrollregion=(0, 0, 100, 5000))
+        canvas.pack(side=LEFT, fill=BOTH, expand=True)
+        scroll.pack(side=LEFT, fill=Y)
+
+        frame = Frame(canvas, width=150, height=3000)
+
+        remplirOnglet(frame, listeNomFichiers[j], listeCheckboxes, listeValeurs,
+                      listeLabels)  # Fonction qui permet de remplir l'onglet
+
+        canvas.create_window(150, 1000, window=frame)
+
+        # barreDeroulante(nomOnglet[j])  # Ajoute une barre déroulante dans l'onglet
+
+        nomOnglet[j].pack_propagate(False)  # Evite l'aggrandissmenet dynamique
+        tabControl.add(nomOnglet[j], text=fileName[j])  # Ajoute l'onglet et le montre et le nomme
+
+
+# Fonction qui permet d'afficher les boutons de selection et la fonction Check Uncheck
+def afficheBouton(fenetre):
+    # Coche toutes les checkboxes
+    def cocheTout(boxs=listeCheckboxes):
+        for i in range(len(boxs)):
+            boxs[i].select()
+            listeValeurs[i].set(1)
+
+    # Décoche toutes les checkboxes
+    def decocheTout(boxs=listeCheckboxes):
+        for i in range(len(boxs)):
+            boxs[i].deselect()
+            listeValeurs[i].set(0)
+
+    # Check all checkboxes
+    boutonCheckAll = Button(fenetre, text="Tout cocher", command=cocheTout, width=13, height=5)
+    boutonCheckAll.pack(side=RIGHT, padx=5, pady=1)
+
+    # Uncheck all checkboxes
+    boutonUnchekAll = Button(fenetre, text="Tout décocher", command=decocheTout, width=13, height=5)
+    boutonUnchekAll.pack(side=RIGHT, padx=5, pady=1)
+
+    # Calcul avec le graphe valué
+    boutonGrapheValue = Button(fenetre, text="Methode MAP",
+                               command=lambda: [NouvelleMethode.calculEG(recupererCheckboxCheck()),
+                                                pyvis_network_graph.create_graph(NouvelleMethode.nomfichierEdge)],
+                               width=13, height=5)
+    boutonGrapheValue.pack(side=RIGHT, padx=5, pady=1)
+
+    # Calcul avec la Coocurence
+    boutonCooccurrence = Button(fenetre, text="Coocurrence",
+                                command=lambda: [AncienneMethode.coocurrence(recupererCheckboxCheck()),
+                                                 pyvis_network_graph.create_graph(AncienneMethode.nameFileEdge)],
+                                width=13, height=5)
+    boutonCooccurrence.pack(side=RIGHT, padx=5, pady=1)
+
+    # Bouton qui relance le programme
+    ButtonReset = Button(fenetre, text="Reset",
+                         command=lambda: [fenetre.destroy(), fenetreAccueil()],
+                         width=13, height=5)
+    ButtonReset.pack(side=RIGHT, padx=5, pady=1)
+
+    # # Bouton import des csv
+    # ButtonImportCSV = Button(fenetre, text="Import CSV", command=lambda: [ouvrirCSV2(fenetre)],
+    #                          width=10, height=5)
+    # ButtonImportCSV.pack(side=RIGHT, padx=5, pady=1)
+
+
+# Fonction pour récupére la liste des checkboxes cochées
+def recupererCheckboxCheck():
+    global listeCheck
+    listeCheck = []
+
+    for i in range(len(listeValeurs)):
+
+        if listeValeurs[i].get() == 1:
+            listeCheck.append(listeLabels[i])
+    print('liste des formules selectionnées')
+    print(listeCheck)
+
+    # messagebox.showinfo("Formules sélectionnées", str(listeCheck))  # Affiche la liste des formules selectionnées
+
+    # Fait appel aux fonctions de vérification synthaxiques
+    if VerificationFormules.checkNbParCroch(listeCheck) is True:
+        messagebox.showinfo("Erreur de Crochets ou Parenthèses",
+                            "Erreur de syntaxe, Vérifiez le nombre de crochets et de parenthèses dans la formule : "
+                            + VerificationFormules.kek)
+    elif VerificationFormules.caracMalPlace(listeCheck) is True:
+        messagebox.showinfo("Erreur de syntaxe", "Erreur de saisie, Vérifiez la syntaxe de la formule : "
+                            + VerificationFormules.phrase)
+    else:
+        return listeCheck
+
+
+# Fonction pour remplir les onglets
+def remplirOnglet(canvas, nomFichier, listeCheckboxes, listeV, listeLabels):
+    with open(nomFichier, 'r', newline="") as csvfile:
+        dialect = csv.Sniffer().sniff(csvfile.read(), delimiters=';,')
+        csvfile.seek(0)
+        reader = csv.reader(csvfile, dialect)
+
+        ligne = 1  # Placement des lignes
+        cases = []  # Noms des labels
+        v = []  # Valeur des variables
+
+        titre = 0
+
+        for i in reader:
+            # print(i)
+            if titre == 0:
+                titre += 1
+            else:
+                listeLabels.append(str(i[1]))
+                cases.append("Label_" + str(i[0]))
+                v.append("Label_" + str(i[0]))
+                # lecture des lignes du csv
+                v[0] = IntVar()
+                cases[0] = Checkbutton(canvas, variable=v[0], text=(str(i[1])))
+                cases[0].pack(anchor=W)
+
+                listeCheckboxes.append(cases[0])  # Ajoute les checkboxes
+                listeV.append(v[0])
+                ligne += 1  # Ajoute 1 pour passer à la ligne suivante
+
+
+def voirGraphe():
+    global fichiers
+    global listeNomFichiers
+    global fileName
+
+    fichiers = tkinter.filedialog.askopenfilenames(title="Ouvrir un fichier CSV", filetypes=[('CSV files', '.csv')])
+
+    fi = 0
+    listeNomFichiers = []
+    fileName = []
+    for i in range(len(fichiers)):
+        r1, r2 = os.path.split(fichiers[fi])  # Coupe le path et le fichier
+
+        nom, extension = os.path.splitext(r2)  # Garle le nom sans l'extension du fichier
+        fileName.append(nom)
+
+        listeNomFichiers.append(r2)  # Récupère le nom du fichier
+
+        fi += 1
+
+    pyvis_network_graph.create_graph(r1 + "/" + nom)  # Appel fonction de visualisation du graphe
+
+
+# Création de la fenêtre d'accueil
+def fenetreAccueil():
+    global fenAccueil
+    # Création de la fenêtre
+    fenAccueil = Tk()
+    fenAccueil.geometry("600x600")
+    centrefenetre(fenAccueil)
+    fenAccueil.title("MAP Graphe")
+
+    iconfile = "images/map.ico"
+    fenAccueil.iconbitmap(iconfile)
+
+    # Barre de status
+    statusbar = Label(fenAccueil, text="MAP Graphe, outil developpé par S.KÖHLER dans le cadre de la licence MIASHS",
+                      relief=SUNKEN, anchor=W)
+    statusbar.pack(side=BOTTOM, fill=X)
+
+    barreMenu(fenAccueil)  # Appel de la fonction qui affiche la barre de menu
+
+    # Message d'accueuil
+    titre = Label(fenAccueil, text=u"MAP Graphe")
+    titre.pack()
+
+    boutonOpenCSV = Button(fenAccueil, text="Traiter formules", command=ouvrirCSV, width=15, height=5)
+    boutonOpenCSV.pack()
+
+    boutonFichierCalcule = Button(fenAccueil, text="Voir graphe", command=voirGraphe, width=15, height=5)
+    boutonFichierCalcule.pack()
+
+    # Image de Présentation
+    Can1 = Canvas(fenAccueil, width=500, height=500)
+    photo = PhotoImage(file='images/map.gif')
+    item = Can1.create_image(250, 200, image=photo)
+    Can1.pack(anchor=S)
+
+    fenAccueil.mainloop()
+
+
+def fenetrePrincipale():
+    # Création de la fenêtre principale
+    global fenPrincipale
+
+    fenPrincipale = Tk()
+    fenPrincipale.geometry("550x550")
+    centrefenetre(fenPrincipale)
+    fenPrincipale.title("MAP Graphe")
+
+    iconfile = "images/map.ico"
+    fenPrincipale.iconbitmap(iconfile)
+
+    barreMenu(fenPrincipale)  # Appel de la fonction qui affiche la barre de menu
+
+    # Appel de la fonction pour mettre des onglets par fichier
+    ongletsCSV(fenPrincipale, listeNomFichiers)
+
+    afficheBouton(fenPrincipale)  # Affiche les boutons pour le type d'algo à utiliser et le check des checkboxes
+
+    fenPrincipale.mainloop()
+
+
+if __name__ == "__main__":
+    fenetreAccueil()
+    # fenetreGrpahe()
